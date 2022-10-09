@@ -3,67 +3,9 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/signal.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <errno.h>
-#include <iostream>
+#include <MySocket.h>
 
 using namespace std;
-
-int Socket(int family, int type, int protocol){ // Create a socket
-    int n;
-    if( (n = socket(family, type, protocol)) < 0)
-        cerr << "socket error" << endl;
-    return n;
-}
-int Connect(int sockfd, struct sockaddr *serv, socklen_t addrlen){ // for TCP, initiate three-way handshaking
-    int n;
-    if( (n = connect(sockfd, serv, addrlen)) < 0)
-        cerr << "connect error" << endl;
-    return n;
-}
-int Bind(int sockfd, struct sockaddr *myaddr, socklen_t addrlen){
-    int n;
-    if( (n = bind(sockfd, myaddr, addrlen)) < 0)
-        cerr << "bind error" << endl;
-    return n;
-}
-int Listen(int sockfd, int backlog){
-    int n;
-    if( (n = listen(sockfd, backlog)) < 0)
-        cerr << "listen error" << endl;
-    return n;
-}
-string HostToIp(const string& host) {
-    hostent* hostname = gethostbyname(host.c_str());
-    if(hostname)
-        return string(inet_ntoa(**(in_addr**)hostname->h_addr_list));
-    return {};
-}
-int readline(int fd, string& recvline){
-    char buf;
-    int n = 0;
-    while(1){
-        if(read(fd, &buf, 1) > 0){
-            if(buf != '\n' && buf != '\0'){
-                recvline += buf;
-                n++;
-            }
-            else{
-                break;
-            }
-        }
-        else{
-            break;
-        }
-    }
-    return n;        
-}
 
 static struct timeval _t0;
 static unsigned long long bytesent = 0;
@@ -83,53 +25,31 @@ void handler(int s) {
 	exit(0);
 }
 
-const char garbage[101] = "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111";
-
 int main(int argc, char *argv[]) {
-    int sockfd, n;
-    struct sockaddr_in servaddr;
-    sockfd = Socket(AF_INET, SOCK_STREAM, 0);
-    bzero(&servaddr, sizeof(servaddr));
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(10003);
-    if (inet_pton(AF_INET, HostToIp("inp111.zoolab.org").c_str(), &servaddr.sin_addr) <= 0){
-        cerr << "inet_pton error for " << "inp111.zoolab.org" << endl;
-        return -1;
-    }
-    Connect(sockfd, (sockaddr*) &servaddr, sizeof(servaddr));
+    int sockfd;
+    Start_TCP_Client(&sockfd, 10003, HostToIp("inp111.zoolab.org"));
 
 	signal(SIGINT,  handler);
 	signal(SIGTERM, handler);
 
+    char garbage[1374];
+    memset(garbage, 0, sizeof(garbage));
+    struct timespec t = {0, 1};
+    if(strcmp(argv[1], "1") == 0){
+        t.tv_nsec = 1230000;
+    }
+    else if(strcmp(argv[1], "1.5") == 0){
+        t.tv_nsec =  775000;
+    }
+    else if(strcmp(argv[1], "2") == 0){
+        t.tv_nsec =  535000;
+    }
+    else{
+        t.tv_nsec =  310000;
+    }
 	gettimeofday(&_t0, NULL);
 	while(1) {
-		// sleep for 1ns
-		// timespec {sec, nanosecond}
-		struct timespec t = { 0, 1 };
-		if(!strcmp(argv[1], "1")){
-			bytesent += send(sockfd, garbage, 100, 0);
-			bytesent += send(sockfd, garbage, 45, 0);
-		}
-		else if(!strcmp(argv[1], "1.5")){
-			bytesent += send(sockfd, garbage, 100, 0);
-			bytesent += send(sockfd, garbage, 100, 0);
-			bytesent += send(sockfd, garbage, 60, 0);
-		}
-		else if(!strcmp(argv[1], "2")){
-			bytesent += send(sockfd, garbage, 100, 0);
-			bytesent += send(sockfd, garbage, 100, 0);
-			bytesent += send(sockfd, garbage, 100, 0);
-			bytesent += send(sockfd, garbage, 70, 0);
-		}
-		else {
-			bytesent += send(sockfd, garbage, 100, 0);
-			bytesent += send(sockfd, garbage, 100, 0);
-			bytesent += send(sockfd, garbage, 100, 0);
-			bytesent += send(sockfd, garbage, 100, 0);
-			bytesent += send(sockfd, garbage, 100, 0);
-			bytesent += send(sockfd, garbage, 100, 0);
-			bytesent += send(sockfd, garbage, 20, 0);
-		}
+		bytesent += send(sockfd, garbage, 1374, 0);
 		nanosleep(&t, NULL);
 	}
 
