@@ -32,24 +32,32 @@ int main(int argc, char *argv[]) {
 	signal(SIGINT,  handler);
 	signal(SIGTERM, handler);
 
-    char garbage[1374];
+    char garbage[1340];
     memset(garbage, 0, sizeof(garbage));
+    int flag = 0;
     struct timespec t = {0, 1};
     if(strcmp(argv[1], "1") == 0){
-        t.tv_nsec = 1230000;
+	flag = 0;
+        t.tv_nsec = 590000;
     }
     else if(strcmp(argv[1], "1.5") == 0){
-        t.tv_nsec =  775000;
+	flag = 1;
+        t.tv_nsec =  370000;
     }
     else if(strcmp(argv[1], "2") == 0){
-        t.tv_nsec =  535000;
+	flag = 2;
+        t.tv_nsec = 508000;
     }
     else{
-        t.tv_nsec =  310000;
+	flag = 3;
+        t.tv_nsec = 500000;
     }
 	gettimeofday(&_t0, NULL);
 	while(1) {
-		bytesent += send(sockfd, garbage, 1374, 0);
+		nanosleep(&t, NULL);
+		bytesent += send(sockfd, garbage, 1340, 0);
+		if(flag>=2) bytesent += send(sockfd, garbage, 1340, 0);
+		if(flag>=3) bytesent += send(sockfd, garbage, 1340, 0);
 		nanosleep(&t, NULL);
 	}
 
