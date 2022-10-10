@@ -7,6 +7,8 @@
 
 using namespace std;
 
+#define BUFFERSIZE 5000
+
 static struct timeval _t0;
 static unsigned long long bytesent = 0;
 
@@ -32,49 +34,34 @@ int main(int argc, char *argv[]) {
 	signal(SIGINT,  handler);
 	signal(SIGTERM, handler);
 
-    char garbage[1340];
+    char garbage[BUFFERSIZE];
     memset(garbage, 0, sizeof(garbage));
-    int flag = 0;
 	int second = 0;
-	int bytepercycle = 0;
-	int BytesPerSecond = 0;
-    struct timespec t = {0, 1250000};
-    if(strcmp(argv[1], "1") == 0){
-		BytesPerSecond = 800000;
-		flag = 0;
-    }
-    else if(strcmp(argv[1], "1.5") == 0){
-		BytesPerSecond = 1300000;
-		flag = 1;
-    }
-    else if(strcmp(argv[1], "2") == 0){
-		BytesPerSecond = 1800000;
-		flag = 2;
-    }
-    else{
-		BytesPerSecond = 2800000;
-		flag = 3;
-    }
-	cout << flag;
+	int bytepercycle = 0, bytepersecond = 0;
+	int BytesPerSecond = 1005000;
+	double rate = atof(argv[1]);
+	BytesPerSecond = BytesPerSecond*rate;
+	int BytesPerCycle = BUFFERSIZE*rate;
+    struct timespec t = {0, 5000000};
 	gettimeofday(&_t0, NULL);
 	while(1) {
-		bytepercycle += send(sockfd, garbage, 1340, 0);
-		if(flag==1) bytepercycle += send(sockfd, garbage, 670, 0);
-		else if(flag==2) bytepercycle += send(sockfd, garbage, 1340, 0);
-		else if(flag==3){
-			bytepercycle += send(sockfd, garbage, 1340, 0);
-			bytepercycle += send(sockfd, garbage, 1340, 0);
-		}
 		second += t.tv_nsec;
 		if(second == 1000000000){
 			second = 0;
-			while(bytepercycle < BytesPerSecond-1340) {
-				bytepercycle += send(sockfd, garbage, 1340, 0);
+			while(bytepersecond < BytesPerSecond-BUFFERSIZE) {
+				bytepersecond += send(sockfd, garbage, BUFFERSIZE, 0);
 			}
-			bytepercycle += send(sockfd, garbage, BytesPerSecond-bytepercycle, 0);
+			while(bytepersecond < BytesPerSecond) bytepersecond += send(sockfd, garbage, BytesPerSecond-bytepersecond, 0);
+			bytesent += bytepersecond;
+			bytepersecond = 0;
+		}
+		else if(bytepersecond < BytesPerSecond) {
+			while(bytepercycle < BytesPerCycle-BUFFERSIZE)
+				bytepercycle += send(sockfd, garbage, BUFFERSIZE, 0);
+			while(bytepercycle < BytesPerCycle) bytepercycle += send(sockfd, garbage, BytesPerCycle-bytepercycle, 0);
+			bytepersecond += bytepercycle;
 			bytepercycle = 0;
 		}
-		bytesent += bytepercycle;
 		nanosleep(&t, NULL);
 	}
 
