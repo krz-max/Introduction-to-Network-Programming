@@ -7,7 +7,7 @@
 
 using namespace std;
 
-#define BUFFERSIZE 5000
+#define BUFFERSIZE 200000
 
 static struct timeval _t0;
 static unsigned long long bytesent = 0;
@@ -29,36 +29,38 @@ void handler(int s) {
 
 int main(int argc, char *argv[]) {
     int sockfd;
-    Start_TCP_Client(&sockfd, 10003, HostToIp("inp111.zoolab.org"));
+    Start_TCP_Client(&sockfd, 10003, "127.0.0.1");
 
 	signal(SIGINT,  handler);
 	signal(SIGTERM, handler);
 
     char garbage[BUFFERSIZE];
     memset(garbage, 0, sizeof(garbage));
-	int second = 0;
+	int second = 0, round = 0;
 	int bytepercycle = 0, bytepersecond = 0;
-	int BytesPerSecond = 1005000;
+	int BytesPerSecond = 1000000;
 	double rate = atof(argv[1]);
 	BytesPerSecond = BytesPerSecond*rate;
-	int BytesPerCycle = BUFFERSIZE*rate;
-    struct timespec t = {0, 5000000};
+    struct timespec t = {0, 10000000};
+	round = 1000000000/t.tv_nsec;
+	int BytesPerCycle = BytesPerSecond/round;
+	int i = 0, j = 0;
+	cout << BytesPerSecond << " " << BytesPerCycle << " " << round;
 	gettimeofday(&_t0, NULL);
-	while(1) {
-		second += t.tv_nsec;
-		if(second == 1000000000){
+	while(1) {		
+		second++;
+		if(second == round){
 			second = 0;
-			while(bytepersecond < BytesPerSecond-BUFFERSIZE) {
-				bytepersecond += send(sockfd, garbage, BUFFERSIZE, 0);
-			}
-			while(bytepersecond < BytesPerSecond) bytepersecond += send(sockfd, garbage, BytesPerSecond-bytepersecond, 0);
+			cout << ++i <<"sec ";
+			while(bytepersecond < BytesPerSecond-BUFFERSIZE)
+				bytepersecond += Writen(sockfd, garbage, BUFFERSIZE);
+			if(bytepersecond < BytesPerSecond) bytepersecond += Writen(sockfd, garbage, BytesPerSecond-bytepersecond);
 			bytesent += bytepersecond;
-			bytepersecond = 0;
+			j=bytepersecond = 0;
 		}
-		else if(bytepersecond < BytesPerSecond) {
-			while(bytepercycle < BytesPerCycle-BUFFERSIZE)
-				bytepercycle += send(sockfd, garbage, BUFFERSIZE, 0);
-			while(bytepercycle < BytesPerCycle) bytepercycle += send(sockfd, garbage, BytesPerCycle-bytepercycle, 0);
+		else if(bytepersecond < BytesPerSecond - BUFFERSIZE){
+			cout << ++j << "cycle ";
+			bytepercycle += Writen(sockfd, garbage, BUFFERSIZE);
 			bytepersecond += bytepercycle;
 			bytepercycle = 0;
 		}
