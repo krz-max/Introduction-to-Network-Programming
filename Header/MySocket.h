@@ -18,8 +18,17 @@ void err_sys(const char* x)
     perror(x);
     exit(1);
 }
-ssize_t						/* Write "n" bytes to a descriptor. */
-writen(int fd, const char *vptr, size_t n)
+
+int Accept(int fd, struct sockaddr *sa, socklen_t *salenptr)
+{
+	int		n;
+	if ( (n = accept(fd, sa, salenptr)) < 0) {
+		err_sys("accept error");
+	}
+	return(n);
+}
+/* Write "n" bytes to a descriptor. */
+ssize_t writen(int fd, const char *vptr, size_t n)
 {
 	size_t		nleft;
 	ssize_t		nwritten;
@@ -42,8 +51,7 @@ writen(int fd, const char *vptr, size_t n)
 }
 /* end writen */
 // ensure N bytes are written
-int
-Writen(int fd, char *ptr, size_t nbytes)
+int Writen(int fd, char *ptr, size_t nbytes)
 {
 	if (writen(fd, ptr, nbytes) != nbytes)
 		err_sys("writen error");
@@ -91,8 +99,7 @@ const char* HostToIp(const std::string& host) {
         return inet_ntoa(**(in_addr**)hostname->h_addr_list);
     return NULL;
 }
-ssize_t
-readline(int fd, char *vptr, size_t maxlen)
+ssize_t readline(int fd, char *vptr, size_t maxlen)
 {
 	ssize_t	n, rc;
 	char	c, *ptr;
@@ -114,8 +121,7 @@ readline(int fd, char *vptr, size_t maxlen)
 	return(n-1);
 }
 // Read a line from fd
-ssize_t
-Readline(int fd, char *ptr, size_t maxlen)
+ssize_t Readline(int fd, char *ptr, size_t maxlen)
 {
 	ssize_t		n;
 
