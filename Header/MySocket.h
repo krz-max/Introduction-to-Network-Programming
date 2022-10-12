@@ -129,6 +129,15 @@ ssize_t Readline(int fd, char *ptr, size_t maxlen)
 		err_sys("readline error");
 	return(n);
 }
+ssize_t Read(int fd, char* ptr, size_t maxlen)
+{
+	ssize_t n;
+
+	if ( (n = read(fd, ptr, maxlen)) < 0 ) {
+		err_sys("read error");
+	}
+	return n;
+}
 int Inet_pton(int family, const char *str, void *addrptr){
 	int n;
     if ( (n = inet_pton(family, str, addrptr) <= 0) ){
@@ -144,6 +153,22 @@ const char* Inet_ntop(int family, const void *addrptr, char *str, size_t len){
         return NULL;
     }
 	return result;
+}
+
+/*
+Select(int maxfdp1, fd_set* readset, fd_set* writeset, fd_set* exceptset, const struct timeval* timeout)
+return positive count of ready descriptor, 0 on timeout, -1 on error
+*/ 
+int Select(int maxfdp1, fd_set* readset, fd_set* writeset, fd_set* exceptset, struct timeval* timeout=NULL)
+{
+	int n;
+	if( (n = select(maxfdp1, readset, writeset, exceptset, timeout) < 0 ) ) {
+		err_sys("select error");
+		return -1;
+	}
+	else if( n == 0 )
+		err_sys("select timeout");
+	return n;
 }
 
 int Start_TCP_Server(int* sockfd, uint16_t Port, uint64_t INADDR=INADDR_ANY)
