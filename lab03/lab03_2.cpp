@@ -29,7 +29,7 @@ void handler(int s) {
 
 int main(int argc, char *argv[]) {
     int sockfd;
-    Start_TCP_Client(&sockfd, 10003, "127.0.0.1");
+    Start_TCP_Client(&sockfd, 10003, HostToIp("inp111.zoolab.org"));
 
 	signal(SIGINT,  handler);
 	signal(SIGTERM, handler);
@@ -38,28 +38,25 @@ int main(int argc, char *argv[]) {
     memset(garbage, 0, sizeof(garbage));
 	int second = 0, round = 0;
 	int bytepercycle = 0, bytepersecond = 0;
-	int BytesPerSecond = 1000000;
+	int BytesPerSecond = 960000;
 	double rate = atof(argv[1]);
 	BytesPerSecond = BytesPerSecond*rate;
     struct timespec t = {0, 10000000};
 	round = 1000000000/t.tv_nsec;
-	int BytesPerCycle = BytesPerSecond/round;
-	int i = 0, j = 0;
-	cout << BytesPerSecond << " " << BytesPerCycle << " " << round;
 	gettimeofday(&_t0, NULL);
 	while(1) {		
 		second++;
 		if(second == round){
 			second = 0;
-			cout << ++i <<"sec ";
+			// cout << ++i <<"sec ";
 			while(bytepersecond < BytesPerSecond-BUFFERSIZE)
 				bytepersecond += Writen(sockfd, garbage, BUFFERSIZE);
 			if(bytepersecond < BytesPerSecond) bytepersecond += Writen(sockfd, garbage, BytesPerSecond-bytepersecond);
 			bytesent += bytepersecond;
-			j=bytepersecond = 0;
+			bytepersecond = 0;
 		}
 		else if(bytepersecond < BytesPerSecond - BUFFERSIZE){
-			cout << ++j << "cycle ";
+			// cout << ++j << "cycle ";
 			bytepercycle += Writen(sockfd, garbage, BUFFERSIZE);
 			bytepersecond += bytepercycle;
 			bytepercycle = 0;
