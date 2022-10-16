@@ -16,7 +16,6 @@ void str_cli(FILE *fp, int sockfd)
     FD_ZERO(&rset);
 
     while (1) {
-        FD_SET(fileno(fp), &rset);
         if ( stdineof == 0 )
             FD_SET(fileno(fp), &rset);
         FD_SET(sockfd, &rset);

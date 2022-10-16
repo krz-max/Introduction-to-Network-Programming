@@ -11,7 +11,7 @@ int main(int argc, char** argv){
 	int					nready, client[FD_SETSIZE];
 	ssize_t				n;
 	fd_set				rset, allset;
-	char				buf[MAXLINE];
+	char				buf[MAXLINE], ip[MAXLINE];
 	socklen_t			clilen;
 	struct sockaddr_in	cliaddr, servaddr;
 
@@ -31,7 +31,7 @@ int main(int argc, char** argv){
 		if (FD_ISSET(listenfd, &rset)) {	/* new client connection */
 			clilen = sizeof(cliaddr);
 			connfd = Accept(listenfd, (sockaddr *) &cliaddr, &clilen);
-			cout << "Client " << connfd << " Connected" << endl;
+			cout << "New Client connection from : " << Inet_ntop(AF_INET, &cliaddr.sin_addr, ip, INET_ADDRSTRLEN) << ":" << cliaddr.sin_port << endl;
 
 			for (i = 0; i < FD_SETSIZE; i++)
 				if (client[i] < 0) {
@@ -59,7 +59,7 @@ int main(int argc, char** argv){
 			if (FD_ISSET(sockfd, &rset)) {
 				if ( (n = Read(sockfd, buf, MAXLINE)) == 0) {
 					/*4connection closed by client */
-					cout << "Client " << i << " Disconnected\n";
+					cout << "Client : " << Inet_ntop(AF_INET, &cliaddr.sin_addr, ip, INET_ADDRSTRLEN) << ":" << cliaddr.sin_port << " disconnected" << endl;
 					close(sockfd);
 					FD_CLR(sockfd, &allset);
 					client[i] = -1;
