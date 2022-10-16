@@ -37,12 +37,15 @@ int main(int argc, char** argv){
 		}
 		else if ( pid == 0 ) {
 			cout << "New connection from " << Inet_ntop(AF_INET, (sockaddr*)&cliaddr.sin_addr, ip, INET_ADDRSTRLEN) << ":" << cliaddr.sin_port << endl;
-			int readfd = connfd;
+			int errfd = dup(STDERR_FILENO);
 			argv[argc] = NULL;
-			dup2(readfd, STDIN_FILENO);
+			// new = old
+			dup2(connfd, STDIN_FILENO);
 			dup2(connfd, STDOUT_FILENO);
+			dup2(connfd, STDERR_FILENO);
 			close(listenfd);
 			if( execvp(argv[2], argv+2) < 0 ) {
+				dup2(errfd, STDERR_FILENO);
 				err_sys(argv[2]);
 			}
 			_exit(0);
