@@ -52,7 +52,7 @@ ssize_t writen(int fd, const char *vptr, size_t n)
 }
 /* end writen */
 // ensure N bytes are written
-int Writen(int fd, char *ptr, size_t nbytes)
+int Writen(int fd, const char *ptr, size_t nbytes)
 {
 	if (writen(fd, ptr, nbytes) != nbytes)
 		err_sys("writen error");
@@ -168,6 +168,20 @@ int Select(int maxfdp1, fd_set* readset, fd_set* writeset, fd_set* exceptset, st
 		return -1;
 	}
 	return n;
+}
+
+void
+Close(int fd)
+{
+	if (close(fd) == -1)
+		err_sys("close error");
+}
+
+void
+Dup2(int fd1, int fd2)
+{
+	if (dup2(fd1, fd2) == -1)
+		err_sys("dup2 error");
 }
 
 int Start_TCP_Server(int* sockfd, uint16_t Port, uint64_t INADDR=INADDR_ANY)
