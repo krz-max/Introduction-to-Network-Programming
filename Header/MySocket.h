@@ -10,6 +10,7 @@
 #include <cstring>
 #include <stdio.h>
 #include <stdlib.h> // strtol(string, endpointer, base)
+#include <iomanip>
 
 #define BACKLOGSIZE 128
 
@@ -162,12 +163,10 @@ return positive count of ready descriptor, 0 on timeout, -1 on error
 int Select(int maxfdp1, fd_set* readset, fd_set* writeset, fd_set* exceptset, struct timeval* timeout=NULL)
 {
 	int n;
-	if( (n = select(maxfdp1, readset, writeset, exceptset, timeout) < 0 ) ) {
+	if( (n = select(maxfdp1, readset, writeset, exceptset, timeout) <= 0 ) ) {
 		err_sys("select error");
 		return -1;
 	}
-	else if( n == 0 )
-		err_sys("select timeout");
 	return n;
 }
 
