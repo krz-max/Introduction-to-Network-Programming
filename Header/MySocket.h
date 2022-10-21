@@ -130,6 +130,11 @@ ssize_t Readline(int fd, char *ptr, size_t maxlen)
 		err_sys("readline error");
 	return(n);
 }
+void Send(int fd, const char *ptr, size_t nbytes, int flags)
+{
+	if (send(fd, ptr, nbytes, flags) != (ssize_t)nbytes)
+		err_sys("send error");
+}
 ssize_t Read(int fd, char* ptr, size_t maxlen)
 {
 	ssize_t n;

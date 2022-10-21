@@ -29,38 +29,40 @@ socklen_t			clilen;
 struct sockaddr_in	cliaddr;
 socklen_t           CLen[MAXUSER];
 struct sockaddr_in  CAddr[MAXUSER];
-
+void sig_hand(int signo) {}
 int printTimeString(){
 	return 0;
 }
 void Notify(int sockfd, int userid, int MessageId){
-    		time_t times = time(NULL);
-    		struct tm* utcTime = gmtime(&times);
+	time_t raw_time = time(0);
+	struct tm *TIME = localtime(&raw_time);
+	char timeStr[40];
+	int timeStrLen = sprintf(timeStr, "%04d-$02d-%02d %d:%d:%d ", TIME->tm_year+1900, TIME->tm_mon+1, TIME->tm_mday, TIME->tm_hour, TIME->tm_min, TIME->tm_sec);
 	switch(MessageId){
 		case WELCOME:
-			// dup2(sockfd, fileno(stdout));
+			// dup2(sockfd, fileno(fileno(stdout)));
 			// cout << timeStr << " *** Welcome to the simple CHAT server" << endl;
 			// cout << timeStr << " *** Total " << howManyUsers << " users online now. Your name is <" << nameStr[userid] << ">" << endl;
 			// printTimeString();
-			// Writen(sockfd, timeStr, timeStrLen);
-			return ;
-			Writen(sockfd, " *** Welcome to the simple CHAT server\n", 39);
-			// Writen(sockfd, timeStr, timeStrLen);
-			Writen(sockfd, " *** Total ", 11);
-			Writen(sockfd, to_string(howManyUsers).c_str(), strlen(to_string(howManyUsers).c_str()));
-			Writen(sockfd, " users online now. Your name is <", 33);
-			Writen(sockfd, nameStr[userid], strlen(nameStr[userid]));
-			Writen(sockfd, ">\n", 2);
+			Send(sockfd, timeStr, timeStrLen, MSG_NOSIGNAL);
+			// return ;
+			Send(sockfd, " *** Welcome to the simple CHAT server\n", 39, MSG_NOSIGNAL);
+			Send(sockfd, timeStr, timeStrLen, MSG_NOSIGNAL);
+			Send(sockfd, " *** Total ", 1, MSG_NOSIGNAL);
+			Send(sockfd, to_string(howManyUsers).c_str(), strlen(to_string(howManyUsers).c_str()), MSG_NOSIGNAL);
+			Send(sockfd, " users online now. Your name is <", 33, MSG_NOSIGNAL);
+			Send(sockfd, nameStr[userid], strlen(nameStr[userid]), MSG_NOSIGNAL);
+			Send(sockfd, ">\n", 2, MSG_NOSIGNAL);
 			break;
 		case ARRIVE:
 			for(int k = 0; k <= maxi; k++) {
 				if(client[k] < 0) 
 					continue;
 				if(k != userid) {
-					// Writen(client[k], timeStr, timeStrLen);
-					Writen(client[k], " *** User ", 10);
-					Writen(client[k], nameStr[userid], strlen(nameStr[userid]));
-					Writen(client[k], " has just landed on the server\n", 31);
+					// Send(client[k], timeStr, timeStrLen, MSG_NOSIGNAL);
+					Send(client[k], " *** User ", 10, MSG_NOSIGNAL);
+					Send(client[k], nameStr[userid], strlen(nameStr[userid]), MSG_NOSIGNAL);
+					Send(client[k], " has just landed on the server\n", 31, MSG_NOSIGNAL);
 					// cout << timeStr << " *** User " << nameStr[userid] << " has just landed on the server" << endl;
 				}
 			}
@@ -70,15 +72,15 @@ void Notify(int sockfd, int userid, int MessageId){
 				if(client[k] < 0) 
 					continue;
 				if(k != userid) {
-					// Writen(client[k], timeStr, timeStrLen);
-					Writen(client[k], " *** User ", 10);
-					Writen(client[k], nameStr[userid], strlen(nameStr[userid]));
-					Writen(client[k], " has just left the server\n", 26);
+					// Send(client[k], timeStr, timeStrLen, MSG_NOSIGNAL);
+					Send(client[k], " *** User ", 10, MSG_NOSIGNAL);
+					Send(client[k], nameStr[userid], strlen(nameStr[userid]), MSG_NOSIGNAL);
+					Send(client[k], " has just left the server\n", 26, MSG_NOSIGNAL);
 					// cout << timeStr << " *** User " << nameStr[userid] << " has just landed on the server" << endl;
 				}
 				// if(client[k] == -1) continue;
 				// if(k != userid){
-				// 	dup2(client[k], fileno(stdout));
+				// 	dup2(client[k], fileno(fileno(stdout)));
 				// 	cout << timeStr << " *** User " << nameStr[userid] << " has just left the server" << endl;
 				// }
 			}
@@ -90,45 +92,45 @@ void Notify(int sockfd, int userid, int MessageId){
 				if(k != userid) {
 					// dup2(client[k], STDOUT_FILENO);
 					// cout << " *** User " << nameStr[userid] << " renamed to " << newname << endl;
-					Writen(client[k], " *** User ", 10);
-					Writen(client[k], nameStr[userid], strlen(nameStr[userid]));
-					Writen(client[k], " renamed to ", 12);
-					Writen(client[k], newname, strlen(newname));
+					Send(client[k], " *** User ", 10, MSG_NOSIGNAL);
+					Send(client[k], nameStr[userid], strlen(nameStr[userid]), MSG_NOSIGNAL);
+					Send(client[k], " renamed to ", 12, MSG_NOSIGNAL);
+					Send(client[k], newname, strlen(newname), MSG_NOSIGNAL);
 				}
 			}
 			break;
 		case SELFCHANGE:			
-			// dup2(sockfd, fileno(stdout));
-			// Writen(sockfd, timeStr, timeStrLen);
-			Writen(sockfd, " *** Nickname changed to ", 25);
-			Writen(sockfd, newname, strlen(newname));
+			// dup2(sockfd, fileno(fileno(stdout)));
+			// Send(sockfd, timeStr, timeStrLen, MSG_NOSIGNAL);
+			Send(sockfd, " *** Nickname changed to ", 25, MSG_NOSIGNAL);
+			Send(sockfd, newname, strlen(newname), MSG_NOSIGNAL);
 			// cout << timeStr << " *** Nickname changed to " << newname << endl;
 			break;
 		case NAMELIST:
-			// dup2(sockfd, fileno(stdout));
+			// dup2(sockfd, fileno(fileno(stdout)));
 			// cout << "---" << endl;
-			Writen(sockfd, "---\n", 4);
+			Send(sockfd, "---\n", 4, MSG_NOSIGNAL);
 			for(int k = 0; k < maxi+1; k++) {
 				if(client[k] == -1) 
 					continue;
-				if(k == userid) Writen(client[k], " * ", 3);
-				else Writen(sockfd, "   ", 3);
-				Writen(sockfd, nameStr[k], strlen(nameStr[k]));
+				if(k == userid) Send(client[k], " * ", 3, MSG_NOSIGNAL);
+				else Send(sockfd, "   ", 3, MSG_NOSIGNAL);
+				Send(sockfd, nameStr[k], strlen(nameStr[k]), MSG_NOSIGNAL);
 				Inet_ntop(AF_INET, (sockaddr*)&CAddr[k].sin_addr, ip, INET_ADDRSTRLEN);
-				Writen(sockfd, ip, strlen(ip));
-				Writen(sockfd, ":", 1);
-				Writen(sockfd, to_string(CAddr[k].sin_port).c_str(), strlen(to_string(CAddr[k].sin_port).c_str()));
-				Writen(sockfd, "\n", 1);
+				Send(sockfd, ip, strlen(ip), MSG_NOSIGNAL);
+				Send(sockfd, ":", 1, MSG_NOSIGNAL);
+				Send(sockfd, to_string(CAddr[k].sin_port).c_str(), strlen(to_string(CAddr[k].sin_port).c_str()), MSG_NOSIGNAL);
+				Send(sockfd, "\n", 1, MSG_NOSIGNAL);
 				// cout << setw(NAMELEN) << left << nameStr[k] << Inet_ntop(AF_INET, (sockaddr*)&CAddr[k].sin_addr, ip, INET_ADDRSTRLEN) << ":" << CAddr[k].sin_port << endl;
 			}
 			break;
 		case WRONGCMD:
-			// dup2(sockfd, fileno(stdout));
+			// dup2(sockfd, fileno(fileno(stdout)));
 			// cout << timeStr << " *** Unknown or incomplete command : " << buf << endl;
-			// Writen(sockfd, timeStr, timeStrLen);
-			Writen(sockfd, " *** Unknown or incomplete command : ", 37);
-			Writen(sockfd, buf, strlen(buf));
-			Writen(sockfd, "\n", 1);
+			// Send(sockfd, timeStr, timeStrLen, MSG_NOSIGNAL);
+			Send(sockfd, " *** Unknown or incomplete command : ", 37, MSG_NOSIGNAL);
+			Send(sockfd, buf, strlen(buf), MSG_NOSIGNAL);
+			Send(sockfd, "\n", 1, MSG_NOSIGNAL);
 			break;
 		case CHAT:
 			for(int k = 0; k < maxi+1; k++) {
@@ -137,11 +139,11 @@ void Notify(int sockfd, int userid, int MessageId){
 				if(k == userid) 
 					continue;
 				// dup2(client[k], STDOUT_FILENO);
-				// Writen(client[k], timeStr, timeStrLen);
-				Writen(client[k], nameStr[userid], strlen(nameStr[userid]));
-				Writen(client[k], " ", 1);
-				Writen(sockfd, buf, strlen(buf));
-				Writen(sockfd, "\n", 1);
+				// Send(client[k], timeStr, timeStrLen, MSG_NOSIGNAL);
+				Send(client[k], nameStr[userid], strlen(nameStr[userid]), MSG_NOSIGNAL);
+				Send(client[k], " ", 1, MSG_NOSIGNAL);
+				Send(sockfd, buf, strlen(buf), MSG_NOSIGNAL);
+				Send(sockfd, "\n", 1, MSG_NOSIGNAL);
 				// cout << timeStr << nameStr[userid] << " " << buf << endl;
 			}
 		default:
@@ -192,8 +194,13 @@ int main(int argc, char** argv){
 			clilen = sizeof(cliaddr);
 			connfd = Accept(listenfd, (sockaddr *) &cliaddr, &clilen);
 			// ServerMessage(cliaddr, SARRIVE);
-			cout << i << " " << connfd;
-			cout << "* client connected from " << Inet_ntop(AF_INET, (sockaddr*)&cliaddr.sin_addr, ip, INET_ADDRSTRLEN) << ":" << cliaddr.sin_port << endl;
+			// cout << i << " " << connfd;
+			Send(fileno(stdout), "* client connected from ", 24, MSG_NOSIGNAL);
+			Inet_ntop(AF_INET, (sockaddr*)&cliaddr.sin_addr, ip, INET_ADDRSTRLEN);
+			Send(fileno(stdout), ip, strlen(ip), MSG_NOSIGNAL);
+			Send(fileno(stdout), ":", 1, MSG_NOSIGNAL);
+			Send(fileno(stdout), to_string(cliaddr.sin_port).c_str(), strlen(to_string(cliaddr.sin_port).c_str()), MSG_NOSIGNAL);
+			Send(fileno(stdout), "\n", 1, MSG_NOSIGNAL);
 			howManyUsers++;
 			for (i = 0; i < FD_SETSIZE && connfd < FD_SETSIZE; i++) {
 				if (client[i] < 0) {
@@ -218,7 +225,6 @@ int main(int argc, char** argv){
 				maxi = i;				/* max index in client[] array */
 			strcpy(nameStr[i], "kkmelon");
 			Notify(connfd, i, WELCOME);
-			return 0;
 			Notify(connfd, i, ARRIVE);
 			if (--nready <= 0)
 				continue;				/* no more readable descriptors */
@@ -238,7 +244,13 @@ int main(int argc, char** argv){
 				else if (n == 0) {
 					if(client[i] < 0) continue;
 					// ServerMessage(CAddr[i], SLEAVE);
-					cout << "* client " << Inet_ntop(AF_INET, (sockaddr*)&CAddr[i].sin_addr, ip, INET_ADDRSTRLEN) << ":" << CAddr[i].sin_port << " disconnected" << endl;
+					// cout << "* client " << Inet_ntop(AF_INET, (sockaddr*)&CAddr[i].sin_addr, ip, INET_ADDRSTRLEN) << ":" << CAddr[i].sin_port << " disconnected" << endl;
+					Send(fileno(stdout), "* client ", 9, MSG_NOSIGNAL);
+					Inet_ntop(AF_INET, (sockaddr*)&cliaddr.sin_addr, ip, INET_ADDRSTRLEN);
+					Send(fileno(stdout), ip, strlen(ip), MSG_NOSIGNAL);
+					Send(fileno(stdout), ":", 1, MSG_NOSIGNAL);
+					Send(fileno(stdout), to_string(CAddr[i].sin_port).c_str(), strlen(to_string(CAddr[i].sin_port).c_str()), MSG_NOSIGNAL);
+					Send(fileno(stdout), " disconnected\n", 14, MSG_NOSIGNAL);
 					Notify(connfd, i, LEAVE);
 					FD_CLR(client[i], &allset);
 					Close(client[i]);
@@ -258,8 +270,8 @@ int main(int argc, char** argv){
 					break;				/* no more readable descriptors */
 			}
 		}
-		for(i = 0; i <= maxi; i++) cout<< client[i] << " ";
-		cout << endl;
+		// for(i = 0; i <= maxi; i++) cout<< client[i] << " ";
+		// cout << endl;
 	}
 	return 0;
 }
