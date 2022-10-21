@@ -11,6 +11,11 @@
 #include <stdio.h>
 #include <stdlib.h> // strtol(string, endpointer, base)
 #include <iomanip>
+#include <poll.h>
+#include <limits.h>
+#include <sys/wait.h>
+
+#define INFTIM -1
 
 #define BACKLOGSIZE 128
 
@@ -161,6 +166,15 @@ const char* Inet_ntop(int family, const void *addrptr, char *str, size_t len){
 	return result;
 }
 
+int Poll(struct pollfd *fdarray, unsigned long nfds, int timeout)
+{
+	int		n;
+
+	if ( (n = poll(fdarray, nfds, timeout)) < 0)
+		err_sys("poll error");
+
+	return(n);
+}
 /*
 Select(int maxfdp1, fd_set* readset, fd_set* writeset, fd_set* exceptset, const struct timeval* timeout)
 return positive count of ready descriptor, 0 on timeout, -1 on error
