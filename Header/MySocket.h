@@ -17,7 +17,7 @@
 
 #define INFTIM -1
 
-#define BACKLOGSIZE 128
+#define BACKLOGSIZE 1024
 
 void err_sys(const char* x)
 {
