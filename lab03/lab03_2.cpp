@@ -3,7 +3,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/signal.h>
-#include <MySocket.h>
+#include "../Header/MySocket.h"
 
 using namespace std;
 
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 	int BytesPerSecond = 960000;
 	double rate = atof(argv[1]);
 	BytesPerSecond = BytesPerSecond*rate;
-    struct timespec t = {0, 10000000};
+    struct timespec t = {0, 1000000};
 	round = 1000000000/t.tv_nsec;
 	gettimeofday(&_t0, NULL);
 	while(1) {		
