@@ -1,6 +1,6 @@
 
-lab4-1: lab04-1.cpp ../Header/MySocket.h
-	g++ lab04-1.cpp -I ../Header -Wall -o nkat.out
+lab4-1: lab04-1.cpp
+	g++ lab04-1.cpp -Wall -o nkat.out
 demo4-1: nkat.out
 	./nkat.out 10001 `which date`
 demo4-2: nkat.out

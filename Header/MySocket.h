@@ -1,19 +1,64 @@
+#ifndef VECTOR_HEADER
+#define VECTOR_HEADER
+
+#include <vector>
+#endif
+
+#ifndef STRING_HEADER
+#define STRING_HEADER
+
+#include <cstring>
+#include <string>
+#include <sstream>
+#endif
+
+#ifndef STD_HEADER
+#define STD_HEADER
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h> // strtol(string, endpointer, base)
+#include <limits.h>
+#include <sys/wait.h>
+#endif
+
+#ifndef SOCKET_HEADER
+#define SOCKET_HEADER
+
+#include <poll.h>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <unistd.h>
-#include <errno.h>
-#include <iostream>
-#include <string>
-#include <cstring>
-#include <stdio.h>
-#include <stdlib.h> // strtol(string, endpointer, base)
-#include <iomanip>
-#include <poll.h>
-#include <limits.h>
-#include <sys/wait.h>
+#endif
+
+#define SA struct sockaddr
+
+const int kBufSize = 1024;
+const std::string kShellTitle = "% ";
+
+inline void WelcomeMsg(int connfd)
+{
+    const std::string msg[3] = {
+        "********************************\n",
+        "** Welcome to the BBS server. **\n",
+        "********************************\n"};
+
+    for (int i = 0; i < 3; ++i)
+        send(connfd, msg[i].c_str(), msg[i].size(), 0);
+}
+
+// erase the trailing space, \n and \r
+inline std::string &rtrim(std::string &s)
+{
+    if (s.empty())
+        return s;
+
+    s.erase(s.find_last_not_of(" \n\r") + 1);
+    return s;
+}
+
 
 #define INFTIM -1
 

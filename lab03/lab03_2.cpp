@@ -1,11 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <sys/time.h>
-#include <sys/signal.h>
-#include "../Header/MySocket.h"
-
-using namespace std;
+#include "header.h"
 
 #define BUFFERSIZE 200000
 

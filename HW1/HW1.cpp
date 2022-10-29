@@ -78,17 +78,6 @@ void sig_hand(int signo) {}
 int printTimeString(){
 	return 0;
 }
-#define NICK        10000
-#define USER        10001
-#define PING        10002
-#define LIST        10003
-#define JOIN        10004
-#define TOPIC       10005
-#define NAMES       10006
-#define PART        10007
-#define USERS       10008
-#define PRIVMSG     10009
-#define LEAVE       10010
 void Notify(int sockfd, int userid, int MessageId){
 	time_t raw_time = time(0);
 	struct tm *TIME = localtime(&raw_time);
@@ -121,6 +110,7 @@ void Notify(int sockfd, int userid, int MessageId){
             break;
 	}
 }
+
 void command_prompt(int sockfd, int userid) {
 	if ( !strncmp(buf, "/name", 5) ) {
 		strncpy(newname, &buf[6], strlen(buf)-6);
