@@ -76,5 +76,4 @@ std::unordered_map<std::string, FuncPtr> kCommandFuntions = {
     {"exit", Exit},
     {"send", Send},
     {"list-msg", ListMsg},
-    {"receive", Receive}
-};
+    {"receive", Receive}};
