@@ -1,0 +1,3 @@
+[submodule "refs"]
+	path = refs
+	url = https://github.com/newb1er/2021NetProg-HW.git
