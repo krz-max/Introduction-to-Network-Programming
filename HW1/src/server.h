@@ -46,7 +46,11 @@ private:
     int listenfd;
     int maxi;
     struct pollfd client[1024];
+    socklen_t CLen[1024];
+    struct sockaddr_in CAddr[1024];
+    char nameStr[1024][100];
     int maxconn;
+    int howmanyusers;
     fd_set rset, allset;
 
     void MyPoll(int &);
@@ -58,6 +62,10 @@ Server::Server(in_port_t port, in_addr_t addr)
     SAddr.sin_port = port;
     SAddr.sin_addr.s_addr = addr;
     maxconn = -1;
+    howmanyusers = 0;
+    memset(CLen, 0, sizeof(CLen));
+    memset(CAddr, 0, sizeof(CAddr));
+    memset(nameStr, 0, sizeof(nameStr));
 }
 void Server::setup()
 {
@@ -67,11 +75,11 @@ void Server::setup()
     int flag = 1;
     setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(int));
 
-	client[0].fd = listenfd;
-	client[0].events = POLLRDNORM;
-	for (i = 1; i < MAXUSER; i++)
-		client[i].fd = -1;			/* -1 indicates available entry */
-	maxi = 0;
+    client[0].fd = listenfd;
+    client[0].events = POLLRDNORM;
+    for (i = 1; i < MAXUSER; i++)
+        client[i].fd = -1; /* -1 indicates available entry */
+    maxi = 0;
 }
 void Server::start()
 {
@@ -81,7 +89,7 @@ void Server::start()
     for (;;)
     {
         int nready;
-		MyPoll(nready);
+        MyPoll(nready);
 
         if (nready == -1 && errno == EINTR)
             continue;
@@ -97,64 +105,77 @@ void Server::MyPoll(int &nready)
 
 void Server::IncommingReq(int &nready)
 {
-    if (nready == 0)
-        return;
-    if (FD_ISSET(listenfd, &rset))
+    if (client[0].revents & POLLRDNORM)
     {
-        int i;
         int connfd;
+        int i;
+        socklen_t clilen;
         struct sockaddr_in cliaddr;
-        socklen_t len = sizeof(cliaddr);
-
-        connfd = accept(listenfd, (SA *)&cliaddr, &len);
-
-        for (i = 0; i < FD_SETSIZE; ++i)
-        {
-            if (client[i] == nullptr)
+        clilen = sizeof(cliaddr);
+        connfd = Accept(listenfd, (sockaddr *)&cliaddr, &clilen);
+        for (i = 1; i < 1024; i++)
+            if (client[i].fd < 0)
             {
-                client[i] = new Session(connfd);
+                client[i].fd = connfd; /* save descriptor */
                 break;
             }
-        }
-        if (i == FD_SETSIZE)
-            std::cerr << "too many clients\n";
+        if (i == 1024)
+            fprintf(stderr, "too many clients");
 
-        FD_SET(connfd, &allset);
+        Inet_ntop(AF_INET, (sockaddr *)&cliaddr.sin_addr, ip, INET_ADDRSTRLEN);
+        printf("* client connected from %s:%d\n", ip, cliaddr.sin_port);
+        howManyUsers++;
 
-        WelcomeMsg(connfd);
-        PrintShellTitle(connfd);
+        client[i].events = POLLRDNORM;
+        CLen[i] = clilen;
+        CAddr[i] = cliaddr;
+        if (i > maxi)
+            maxi = i; /* max index in client[] .fdarray */
 
-        maxfd = std::max(maxfd, connfd);
-        maxconn = std::max(maxconn, i);
-        --nready;
+        strcpy(nameStr[i], "kkmelon");
+        Notify(connfd, i, WELCOME);
+        Notify(connfd, i, ARRIVE);
+
+        if (--nready <= 0)
+            continue; /* no more readable descriptors */
     }
 }
 void Server::ConnectedReq(int &nready)
 {
-    if (nready <= 0)
-        return;
-
-    Session *s;
+    int nowfd;
     char buf[kBufSize];
     std::stringstream ss;
     std::list<std::string> cmd;
-
-    for (int i = 0; i <= maxconn; ++i)
-    {
-        if ((s = client[i]) == nullptr)
+    for (i = 1; i <= maxi; i++)
+    { /* check all clients for data */
+        if ((nowfd = client[i].fd) < 0)
             continue;
-
-        if (FD_ISSET(s->fd, &rset))
+        if (client[i].revents & (POLLRDNORM | POLLERR))
         {
             bzero(buf, kBufSize);
-
-            if ((read(s->fd, buf, kBufSize)) == 0)
+            if ((n = read(nowfd, buf, MAXLINE)) < 0)
             {
-                CloseConnection(s->fd, i);
+                if (errno == ECONNRESET)
+                {
+                    /*4connection reset by client */
+                    Close(nowfd);
+                    client[i].fd = -1;
+                }
+                else
+                    err_sys("read error");
+            }
+            else if (n == 0)
+            {
+                /*4connection closed by client */
+                Close(nowfd);
+                client[i].fd = -1;
+                Inet_ntop(AF_INET, (sockaddr *)&CAddr[i].sin_addr, ip, INET_ADDRSTRLEN);
+                printf("* client %s:%d disconnected\n", ip, CAddr[i].sin_port);
+                Notify(connfd, i, LEAVE);
+                howManyUsers--;
             }
             else
             {
-                // ! clear ss before read
                 ss.str("");
                 ss.clear();
 
@@ -167,7 +188,7 @@ void Server::ConnectedReq(int &nready)
             }
 
             if (--nready <= 0)
-                break;
+                break; /* no more readable descriptors */
         }
     }
 }
