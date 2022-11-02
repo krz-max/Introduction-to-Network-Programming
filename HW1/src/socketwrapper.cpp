@@ -89,21 +89,6 @@ int Listen(int sockfd, int backlog)
 }
 
 /*
-For Server, convert a hostname to IP
-Prototype:
-    const char *HostToIp(const std::string &host);
-Example:
-    char* IP = HostToIp("inp111.zoolab.org");
-Return format "xxx.xxx.xxx.xxx"
-*/
-const char *HostToIp(const std::string &host)
-{
-    hostent *hostname = gethostbyname(host.c_str());
-    if (hostname)
-        return inet_ntoa(**(in_addr **)hostname->h_addr_list);
-    return NULL;
-}
-/*
 Send message in ptr to fd
 Prototype:
     void Send(int fd, const char *ptr, size_t nbytes, int flags)

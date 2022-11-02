@@ -1,38 +1,17 @@
-#ifndef STRING_HEADER
-#define STRING_HEADER
+#include "stdlib.h"
 
-#include <cstring>
-#include <string>
-#include <sstream>
-#endif
-
-#ifndef QUEUE_HEADER
-#define QUEUE_HEADER
-
-#include <queue>
-#endif
-
-#ifndef SOCKET_HEADER
-#define SOCKET_HEADER
-
-#include <unistd.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#endif
-
-#ifndef MAP_HEADER
-#define MAP_HEADER
-
-#include <map>
-#include <unordered_map>
-#endif
-
-#ifndef FORWARD_LIST_HEADER
-#define FORWARD_LIST_HEADER
-
-#include <forward_list>
-#endif
+#define LIST 10003
+#define NAMES 10006
+#define USERS 10008
+#define NICK 10000
+#define USER 10001
+#define PING 10002
+#define JOIN 10004
+#define TOPIC 10005
+#define PART 10007
+#define PRIVMSG 10009
+#define LEAVE 10010
+#define UNKNOWN 10011
 
 namespace PromptMsg
 {
@@ -55,17 +34,17 @@ namespace ErrorMsg
     const std::string kReceiveUsageError = "Usage: receive <username>\n";
 };
 
-void Register(std::vector<std::string> &arg_str, int fd);
-void Login(std::vector<std::string> &arg_str, int fd);
-void Logout(std::vector<std::string> &arg_str, int fd);
-void Whoami(std::vector<std::string> &arg_str, int fd);
-void ListUser(std::vector<std::string> &arg_str, int fd);
-void Exit(std::vector<std::string> &arg_str, int fd);
-void Send(std::vector<std::string> &arg_str, int fd);
-void ListMsg(std::vector<std::string> &arg_str, int fd);
-void Receive(std::vector<std::string> &arg_str, int fd);
+void Register(std::list<std::string> &arg_str, int fd);
+void Login(std::list<std::string> &arg_str, int fd);
+void Logout(std::list<std::string> &arg_str, int fd);
+void Whoami(std::list<std::string> &arg_str, int fd);
+void ListUser(std::list<std::string> &arg_str, int fd);
+void Exit(std::list<std::string> &arg_str, int fd);
+void Send(std::list<std::string> &arg_str, int fd);
+void ListMsg(std::list<std::string> &arg_str, int fd);
+void Receive(std::list<std::string> &arg_str, int fd);
 
-typedef void (*FuncPtr)(std::vector<std::string> &arg_str, int fd);
+typedef void (*FuncPtr)(std::list<std::string> &arg_str, int fd);
 
 std::unordered_map<std::string, FuncPtr> kCommandFuntions = {
     {"register", Register},
@@ -76,4 +55,5 @@ std::unordered_map<std::string, FuncPtr> kCommandFuntions = {
     {"exit", Exit},
     {"send", Send},
     {"list-msg", ListMsg},
-    {"receive", Receive}};
+    {"receive", Receive}
+};

@@ -1,5 +1,5 @@
 CC = g++
-CFLAG = -Wall -O3 --static
+CFLAG = -Wall
 
 all:
 	${CC} ${CFLAG} hw1.cpp -o hw1.out
