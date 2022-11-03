@@ -1,5 +1,5 @@
 #include "stdlib.h"
-
+#include "server.h"
 #define LIST 10003
 #define NAMES 10006
 #define USERS 10008
@@ -13,47 +13,31 @@
 #define LEAVE 10010
 #define UNKNOWN 10011
 
-namespace PromptMsg
-{
-    const std::string kRegSuccess = "Register successfully.\n";
-    const std::string kLoginSuccess = "Welcome, ";
-    const std::string kLogoutSuccess = "Bye, ";
-    const std::string kEmptyMailBox = "Your message box is empty.\n";
-};
 
-namespace ErrorMsg
-{
-    const std::string kRegUsageError = "Usage: register <username> <password>\n";
-    const std::string kRegDupUserError = "Username is already used.\n";
-    const std::string kLoginUsageError = "Usage: login <username> <password>\n";
-    const std::string kNoLogoutError = "Please logout first.\n";
-    const std::string kLoginFailError = "Login failed.\n";
-    const std::string kNoLoginError = "Please Login first.\n";
-    const std::string kSendUsageError = "Usage: send <username> <message>\n";
-    const std::string kNoUserError = "User not existed.\n";
-    const std::string kReceiveUsageError = "Usage: receive <username>\n";
-};
+void nick(std::list<std::string> &arg_str, UserInfo *fd);
+void user(std::list<std::string> &arg_str, UserInfo *fd);
+void ping(std::list<std::string> &arg_str, UserInfo *fd);
+void list(std::list<std::string> &arg_str, UserInfo *fd);
+void join(std::list<std::string> &arg_str, UserInfo *fd);
+void topic(std::list<std::string> &arg_str, UserInfo *fd);
+void names(std::list<std::string> &arg_str, UserInfo *fd);
+void part(std::list<std::string> &arg_str, UserInfo *fd);
+void users(std::list<std::string> &arg_str, UserInfo *fd);
+void privmsg(std::list<std::string> &arg_str, UserInfo *fd);
+void quit(std::list<std::string> &arg_str, UserInfo *fd);
 
-void Register(std::list<std::string> &arg_str, int fd);
-void Login(std::list<std::string> &arg_str, int fd);
-void Logout(std::list<std::string> &arg_str, int fd);
-void Whoami(std::list<std::string> &arg_str, int fd);
-void ListUser(std::list<std::string> &arg_str, int fd);
-void Exit(std::list<std::string> &arg_str, int fd);
-void Send(std::list<std::string> &arg_str, int fd);
-void ListMsg(std::list<std::string> &arg_str, int fd);
-void Receive(std::list<std::string> &arg_str, int fd);
-
-typedef void (*FuncPtr)(std::list<std::string> &arg_str, int fd);
+typedef void (*FuncPtr)(std::list<std::string> &arg_str, UserInfo *fd);
 
 std::unordered_map<std::string, FuncPtr> kCommandFuntions = {
-    {"register", Register},
-    {"login", Login},
-    {"logout", Logout},
-    {"whoami", Whoami},
-    {"list-user", ListUser},
-    {"exit", Exit},
-    {"send", Send},
-    {"list-msg", ListMsg},
-    {"receive", Receive}
+    {"NICK", nick},
+    {"USER", user},
+    {"PING", ping},
+    {"LIST", list},
+    {"JOIN", join},
+    {"TOPIC", topic},
+    {"NAMES", names},
+    {"PART", part},
+    {"USERS", users},
+    {"PRIVMSG", privmsg},
+    {"QUIT", quit}
 };

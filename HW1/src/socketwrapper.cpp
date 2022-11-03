@@ -1,10 +1,5 @@
 #include "socketwrapper.h"
 
-void err_sys(const char *x)
-{
-    perror(x);
-    exit(1);
-}
 
 /*
 Used to wait for a client connection

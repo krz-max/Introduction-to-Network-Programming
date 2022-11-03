@@ -18,16 +18,16 @@ void Parser(std::stringstream &ss, std::list<std::string> &args)
             // JOIN, TOPIC, PART, PRIVMSG, NAMES has <channel> as argument
             // #channel
             std::string temp = str.substr(1);
-            args.push_back(str);
+            args.push_back(rtrim(str));
         }
         else if(str[0] == ':') // last argument
         {
             std::string temp = str.substr(1);
-            args.push_back(str);
+            args.push_back(rtrim(str));
             return ;
         }
         else{
-            args.push_back(str);
+            args.push_back(rtrim(str));
         }
     }
 }
@@ -35,17 +35,21 @@ void Parser(std::stringstream &ss, std::list<std::string> &args)
 // return :
 //      true: close connection
 //      false: keep reading
-bool ParseCommand(std::stringstream &ss, struct pollfd *client, std::list<std::string> &cmd)
+bool ParseCommand(std::stringstream &ss, UserInfo *client, std::list<std::string> &cmd)
 {
     Parser(ss, cmd);
+    fprintf(stdout, "cmd size: %ld\n", cmd.size());
+    for(std::string it:cmd)
+        fprintf(stdout, "parsed cmd: %s\n", it.c_str());
 
     if (cmd.empty())
         return false;
-
     auto func = kCommandFuntions.find(cmd.front());
+    // if(cmd.front() == "USERS") fprintf(stdout, "???\n");
     if (func != kCommandFuntions.end())
     {
-        (*func->second)(cmd, client->fd);
+        fprintf(stdout, "cmd: %s\n", func->first.c_str());
+        (*func->second)(cmd, client);
 
         if (func->first == "exit")
             return true;

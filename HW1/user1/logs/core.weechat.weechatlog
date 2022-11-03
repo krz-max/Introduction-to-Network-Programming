@@ -1,0 +1,306 @@
+2022-11-03 10:07:50		New key binding (context "default"): meta2-1;5P => /bar scroll buflist * -100%
+2022-11-03 10:07:50		New key binding (context "default"): meta2-1;5Q => /bar scroll buflist * +100%
+2022-11-03 10:07:50		New key binding (context "default"): meta-meta-OQ => /bar scroll buflist * e
+2022-11-03 10:07:50		New key binding (context "default"): meta2-1;3Q => /bar scroll buflist * e
+2022-11-03 10:07:50		New key binding (context "default"): meta2-1;3P => /bar scroll buflist * b
+2022-11-03 10:07:50		New key binding (context "default"): meta-meta-OP => /bar scroll buflist * b
+2022-11-03 10:07:50		New key binding (context "default"): meta-OQ => /bar scroll buflist * +100%
+2022-11-03 10:07:50		New key binding (context "default"): meta-OP => /bar scroll buflist * -100%
+2022-11-03 10:07:50		New key binding (context "default"): meta-meta2-12~ => /bar scroll buflist * e
+2022-11-03 10:07:50		New key binding (context "default"): meta-meta2-11~ => /bar scroll buflist * b
+2022-11-03 10:07:50		New key binding (context "default"): meta2-12^ => /bar scroll buflist * +100%
+2022-11-03 10:07:50		New key binding (context "default"): meta2-12~ => /bar scroll buflist * +100%
+2022-11-03 10:07:50		New key binding (context "default"): meta2-11^ => /bar scroll buflist * -100%
+2022-11-03 10:07:50		New key binding (context "default"): meta2-11~ => /bar scroll buflist * -100%
+2022-11-03 10:07:50	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:07:50		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:07:50		irc: server added: mircd
+2022-11-03 10:07:50		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:07:58		All servers:
+2022-11-03 10:07:58		   mircd
+2022-11-03 10:13:51	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:13:51		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:13:51	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:13:51		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:14:58	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:14:59		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:14:59	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:14:59		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:16:14	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:16:14		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:16:14	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:16:14		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:16:22		All servers:
+2022-11-03 10:16:22		   mircd
+2022-11-03 10:16:39	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:16:39		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:16:39	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:16:39		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:16:47		All servers:
+2022-11-03 10:16:47		   mircd
+2022-11-03 10:16:54	=!=	irc: command "users" must be executed on connected irc server
+2022-11-03 10:17:04	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:17:05		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:17:05	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:17:05		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:17:16	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:17:17		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:17:17	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:17:17		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:17:39	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:17:40		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:17:40	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:17:40		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:17:54		All servers:
+2022-11-03 10:17:54		   mircd
+2022-11-03 10:19:06	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:19:07		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:19:07	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:19:07		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:20:46	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:20:47		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:20:47	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:20:47		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:20:59		All servers:
+2022-11-03 10:20:59		   mircd
+2022-11-03 10:23:14	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:23:14		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:23:14	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:23:14		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:23:41	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:23:41		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:23:41	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:23:41		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:24:25	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:24:26		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:24:26	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:24:26		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:25:16	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:25:17		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:25:17	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:25:17		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:25:30	=!=	irc: command "users" must be executed on connected irc server
+2022-11-03 10:25:31	=!=	irc: command "users" must be executed on connected irc server
+2022-11-03 10:25:34	=!=	Error: unknown command "/fdafjid" (type /help for help)
+2022-11-03 10:25:38	=!=	irc: command "ping" must be executed on connected irc server
+2022-11-03 10:25:40	=!=	irc: command "who" must be executed on connected irc server
+2022-11-03 10:25:42	=!=	irc: command "list" must be executed on connected irc server
+2022-11-03 10:25:49	=!=	irc: command "join" must be executed on connected irc server
+2022-11-03 10:27:12	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:27:13		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:27:13	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:27:13		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:28:05	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:28:05		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:28:05	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:28:05		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:28:45	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:28:45		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:28:45	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:28:45		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:29:19	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:29:20		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:29:44	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:29:45		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:31:11	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:31:12		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:31:12	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:31:12		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:33:04	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:33:04		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:33:04	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:33:04		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:33:11		All servers:
+2022-11-03 10:33:11		 * mircd [connected], nick: user1, 0 channels, 0 pv
+2022-11-03 10:33:14	=!=	irc: already connected to server "mircd"!
+2022-11-03 10:33:16		All servers:
+2022-11-03 10:33:16		 * mircd [connected], nick: user1, 0 channels, 0 pv
+2022-11-03 10:34:48	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:34:49		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:34:49	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:34:49		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:37:03	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:37:03		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:37:03	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:37:03		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:38:27	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:38:27		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:38:27	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:38:27		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:39:09	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:39:10		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:39:10	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:39:10		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:42:49	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:42:49		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:42:49	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:42:49		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:42:59		All servers:
+2022-11-03 10:42:59		 * mircd [connected], nick: user1, 0 channels, 0 pv
+2022-11-03 10:47:05	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:47:05		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:47:05	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:47:05		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:47:11		All servers:
+2022-11-03 10:47:11		 * mircd [connected], nick: user1, 0 channels, 0 pv
+2022-11-03 10:52:35	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:52:35		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:52:35	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:52:35		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 10:59:07	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 10:59:08		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 10:59:08	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 10:59:08		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 11:01:18	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 11:01:18		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 11:01:18	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 11:01:18		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 11:06:41	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 11:06:42		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 11:06:49	=!=	irc: already connected to server "mircd"!
+2022-11-03 11:06:57	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 11:06:57		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 11:07:18	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 11:07:18		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 11:07:32	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 11:07:32		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 11:07:36	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 11:07:37		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 11:09:53	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 11:09:53		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 11:10:44	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 11:10:45		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 11:10:45	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 11:10:45		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 11:10:54	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 11:10:54		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 11:10:54	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 11:10:54		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 11:10:57	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 11:10:58		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 11:10:58	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 11:10:58		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 12:03:02	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 12:03:02		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 12:03:02	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 12:03:02		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 12:03:07		All servers:
+2022-11-03 12:03:07		 * mircd [connected], nick: user1, 0 channels, 0 pv
+2022-11-03 12:03:23	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 12:03:23		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 12:03:23	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 12:03:23		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 12:12:23	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 12:12:23		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 12:12:23	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 12:12:23		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 12:12:24	=!=	Error: unknown command "/ser" (type /help for help)
+2022-11-03 12:13:32	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 12:13:32		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 12:13:32	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 12:13:32		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 12:13:35		All servers:
+2022-11-03 12:13:35		 * mircd [connected], nick: user1, 0 channels, 0 pv
+2022-11-03 12:13:49	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 12:13:50		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 12:13:50	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 12:13:50		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 12:14:59	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 12:14:59		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 12:14:59	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 12:14:59		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 12:15:02	=!=	Error: unknown command "/su" (type /help for help)
+2022-11-03 12:16:35	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 12:16:35		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 12:16:35	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 12:16:35		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 12:16:37	=!=	Error: unknown command "/user" (type /help for help)
+2022-11-03 12:16:38	=!=	Error: unknown command "/lsit" (type /help for help)
+2022-11-03 12:21:56	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 12:21:56		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 12:21:56	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 12:21:56		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 12:22:06	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 12:22:06		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 12:22:06	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 12:22:06		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 12:22:09	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 12:22:10		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 12:22:10	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 12:22:10		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 15:56:42	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 15:56:43		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 15:56:43	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 15:56:43		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 16:08:24	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 16:08:24		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 16:08:24	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 16:08:24		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 16:08:58	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 16:08:58		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 16:08:58	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 16:08:58		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 16:09:06	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 16:09:07		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 16:09:07	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 16:09:07		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 16:09:15		All servers:
+2022-11-03 16:09:15		 * mircd [connected], nick: user1, 0 channels, 0 pv
+2022-11-03 16:17:03	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 16:17:03		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 16:17:04	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 16:17:04		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 16:17:46	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 16:17:46		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 16:17:46	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 16:17:46		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 16:42:33	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 16:42:33		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 16:42:33	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 16:42:33		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 16:45:04	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 16:45:04		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 16:45:04	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 16:45:04		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 16:49:49	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 16:49:50		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 16:49:50	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 16:49:50		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 17:04:47	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 17:04:48		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 17:04:48	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 17:04:48		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 17:05:03		All servers:
+2022-11-03 17:05:03		 * mircd [connected], nick: user1, 0 channels, 0 pv
+2022-11-03 17:06:48	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 17:06:48		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 17:06:48	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 17:06:48		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 17:07:11	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 17:07:11		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 17:07:11	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 17:07:11		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 17:09:36	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 17:09:37		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 17:09:37	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 17:09:37		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 17:16:23	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 17:16:23		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 17:16:23	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 17:16:23		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 17:16:54	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 17:16:54		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 17:16:54	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 17:16:54		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 17:20:30	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 17:20:31		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 17:20:31	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 17:20:31		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 17:20:53	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 17:20:53		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 17:20:53	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 17:20:53		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")
+2022-11-03 17:21:04	=!=	fifo: unable to create pipe for remote control (./user1/weechat_fifo): error 95 Operation not supported
+2022-11-03 17:21:05		Plugins loaded: alias, buflist, charset, exec, fifo, fset, irc, logger, perl, python, relay, ruby, script, spell, trigger, xfer
+2022-11-03 17:21:05	=!=	irc: server "mircd" already exists, can't add it!
+2022-11-03 17:21:05		Option changed: irc.server.mircd.nicks = "user1"  (default if null: "kkmelon,kkmelon1,kkmelon2,kkmelon3,kkmelon4")

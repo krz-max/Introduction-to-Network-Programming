@@ -4,7 +4,6 @@
 #define INFTIM -1
 #define BACKLOGSIZE 1024
 
-void err_sys(const char *x);
 int Accept(int fd, struct SA *sa, socklen_t *salenptr);
 int Socket(int family, int type, int protocol);
 int Connect(int sockfd, struct SA *serv, socklen_t addrlen);

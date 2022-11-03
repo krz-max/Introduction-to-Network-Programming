@@ -27,6 +27,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#define SA sockaddr
 #endif
 
 #ifndef STD_HEADER
