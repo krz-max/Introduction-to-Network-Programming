@@ -21,6 +21,38 @@ namespace CmdType
     const std::string IRC_USERS = "USERS";
     const std::string IRC_PRIVMSG = "PRIVMSG";
 };
+namespace ResponseCode
+{
+    // Reply Message :
+    const std::string RPL_WELCOME = "001";
+    const std::string RPL_SERVMSG = "251";
+    const std::string RPL_LISTSTART = "321";
+    const std::string RPL_LIST = "322";
+    const std::string RPL_LISTEND = "323";
+    const std::string RPL_NOTOPIC = "331";
+    const std::string RPL_TOPIC = "332";
+    const std::string RPL_NAMREPLY = "353";
+    const std::string RPL_ENDOFNAMES = "366";
+    const std::string RPL_MOTD = "372";
+    const std::string RPL_MOTDSTART = "375";
+    const std::string RPL_ENDOFMOTD = "376";
+    const std::string RPL_USERSSTART = "392";
+    const std::string RPL_USERS = "393";
+    const std::string RPL_ENDOFUSERS = "394";
+
+    // Error Message :
+    const std::string ERR_NOSUCHCHANNEL = "403";
+    const std::string ERR_UNKNOWNCOMMAND = "421";
+    const std::string ERR_NICKCOLLISION = "436";
+    const std::string ERR_NOTONCHANNEL = "442";
+    // Not sure :
+    const std::string ERR_NONICKNAMEGIVEN = "431";
+    const std::string ERR_NOSUCHNICK = "401";
+    const std::string ERR_NORECIPIENT = "411";
+    const std::string ERR_NOTEXTTOSEND = "412";
+    const std::string ERR_NOTREGISTERED = "451";
+    const std::string ERR_NEEDMOREPARAMS = "461";
+};
 namespace DefaultMsg
 {
     const std::string dash = "-";
@@ -36,7 +68,7 @@ struct NameInfo
 struct UserInfo
 {
     int fd;
-    int chanID;
+    int chanID = -1;
     NameInfo UserID;
     socklen_t CLen;
     sockaddr_in CAddr;
@@ -54,8 +86,8 @@ struct Channel
 {
     int nusers;
     std::string name;
-    std::string topic;
-    Channel(std::string name) : nusers(1), name(name), topic("") {}
+    std::string topic = "";
+    Channel(std::string name) : nusers(1), name(name) {}
 };
 
 class Server

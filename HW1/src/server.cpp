@@ -16,16 +16,16 @@ Reply Message :
 [x] (394) RPL_ENDOFUSERS
 
 Error Message :
-[*](401) ERR_NOSUCHNICK // ???
 [x](403) ERR_NOSUCHCHANNEL // names, part, topic, [x]list.  join & privmsg is always right
-[*](411) ERR_NORECIPIENT // ???
-[*](412) ERR_NOTEXTTOSEND // ???
 [x](421) ERR_UNKNOWNCOMMAND // ~~
-[*](431) ERR_NONICKNAMEGIVEN // ???
 [x](436) ERR_NICKCOLLISION // nick
 [x](442) ERR_NOTONCHANNEL // topic, part
+[*](431) ERR_NONICKNAMEGIVEN // NICK
+[*](401) ERR_NOSUCHNICK // PRIVMSG
+[*](411) ERR_NORECIPIENT // PRIVMSG
+[*](412) ERR_NOTEXTTOSEND // PRIVMSG
 [*](451) ERR_NOTREGISTERED // ??
-[*](461) ERR_NEEDMOREPARAMS // ??
+[*](461) ERR_NEEDMOREPARAMS // JOIN, PART, TOPIC
  */
 
 inline std::string &rtrim(std::string &s)
@@ -119,7 +119,10 @@ bool Server::ParseCommand(std::stringstream &ss, int &uid, std::list<std::string
     }
     else
     {
-        dprintf(client[uid]->fd, ":mircd 421 %s %s :Unknown command\r\n", client[uid]->UserID.nickname.c_str(), identifier.c_str());
+        dprintf(client[uid]->fd, ":mircd %s %s %s :Unknown command\r\n",
+                ResponseCode::ERR_UNKNOWNCOMMAND.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                identifier.c_str());
         return false;
     }
     return false;
@@ -289,7 +292,6 @@ void Server::Server::CloseConnection(int &sockfd, int &connidx)
 {
     FD_CLR(sockfd, &allset);
     client[connidx] = nullptr;
-    // shutdown(sockfd, SHUT_RDWR);
     close(sockfd);
 }
 
@@ -299,7 +301,10 @@ bool Server::checkNickExist(const std::string &target, int &uid)
     {
         if (client[i]->UserID.nickname == target)
         { // collision
-            dprintf(client[uid]->fd, ":mircd 436 %s %s :Nickname collision\r\n", client[uid]->UserID.nickname.c_str(), target.c_str());
+            dprintf(client[uid]->fd, ":mircd %s %s %s :Nickname collision\r\n",
+                    ResponseCode::ERR_NICKCOLLISION.c_str(),
+                    client[uid]->UserID.nickname.c_str(),
+                    target.c_str());
             return true;
         }
     }
@@ -333,41 +338,65 @@ void Server::user(std::list<std::string> &arg_str, int &uid)
     client[uid]->UserID.username = username;
     kusers = (client[uid]->isLogin) ? kusers : kusers + 1;
     client[uid]->isLogin = true;
-    dprintf(client[uid]->fd, ":mircd 001 %s :Welcome to the minimized IRC daemon!\r\n", client[uid]->UserID.nickname.c_str());
-    dprintf(client[uid]->fd, ":mircd 251 %s :There are %d users and 0 invisible on 1 server\r\n", client[uid]->UserID.nickname.c_str(), kusers);
-    dprintf(client[uid]->fd, ":mircd 375 %s :- mircd Message of the day -\r\n", client[uid]->UserID.nickname.c_str());
-    dprintf(client[uid]->fd, ":mircd 372 %s :-  Hello, World!\r\n", client[uid]->UserID.nickname.c_str());
-    dprintf(client[uid]->fd, ":mircd 372 %s :-               @                    _ \r\n", client[uid]->UserID.nickname.c_str());
-    dprintf(client[uid]->fd, ":mircd 372 %s :-   ____  ___   _   _ _   ____.     | |\r\n", client[uid]->UserID.nickname.c_str());
-    dprintf(client[uid]->fd, ":mircd 372 %s :-  /  _ `'_  \\ | | | '_/ /  __|  ___| |\r\n", client[uid]->UserID.nickname.c_str());
-    dprintf(client[uid]->fd, ":mircd 372 %s :-  | | | | | | | | | |   | |    /  _  |\r\n", client[uid]->UserID.nickname.c_str());
-    dprintf(client[uid]->fd, ":mircd 372 %s :-  | | | | | | | | | |   | |__  | |_| |\r\n", client[uid]->UserID.nickname.c_str());
-    dprintf(client[uid]->fd, ":mircd 372 %s :-  |_| |_| |_| |_| |_|   \\____| \\___,_|\r\n", client[uid]->UserID.nickname.c_str());
-    dprintf(client[uid]->fd, ":mircd 372 %s :-  minimized internet relay chat daemon\r\n", client[uid]->UserID.nickname.c_str());
-    dprintf(client[uid]->fd, ":mircd 372 %s :-\r\n", client[uid]->UserID.nickname.c_str());
-    dprintf(client[uid]->fd, ":mircd 376 %s :End of message of the day\r\n", client[uid]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :Welcome to the minimized IRC daemon!\r\n",
+            ResponseCode::RPL_WELCOME.c_str(),
+            client[uid]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :There are %d users and 0 invisible on 1 server\r\n",
+            ResponseCode::RPL_SERVMSG.c_str(),
+            client[uid]->UserID.nickname.c_str(),
+            kusers);
+    dprintf(client[uid]->fd, ":mircd %s %s :- mircd Message of the day -\r\n",
+            ResponseCode::RPL_MOTDSTART.c_str(),
+            client[uid]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :-  Hello, World!\r\n", ResponseCode::RPL_MOTD.c_str(), client[uid]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :-               @                    _ \r\n", ResponseCode::RPL_MOTD.c_str(), client[uid]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :-   ____  ___   _   _ _   ____.     | |\r\n", ResponseCode::RPL_MOTD.c_str(), client[uid]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :-  /  _ `'_  \\ | | | '_/ /  __|  ___| |\r\n", ResponseCode::RPL_MOTD.c_str(), client[uid]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :-  | | | | | | | | | |   | |    /  _  |\r\n", ResponseCode::RPL_MOTD.c_str(), client[uid]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :-  | | | | | | | | | |   | |__  | |_| |\r\n", ResponseCode::RPL_MOTD.c_str(), client[uid]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :-  |_| |_| |_| |_| |_|   \\____| \\___,_|\r\n", ResponseCode::RPL_MOTD.c_str(), client[uid]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :-  minimized internet relay chat daemon\r\n", ResponseCode::RPL_MOTD.c_str(), client[uid]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :-\r\n", ResponseCode::RPL_MOTD.c_str(), client[uid]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :End of message of the day\r\n",
+            ResponseCode::RPL_ENDOFMOTD.c_str(),
+            client[uid]->UserID.nickname.c_str());
     return;
 }
 void Server::list(std::list<std::string> &arg_str, int &uid)
 {
+    if (kchannel == 0)
+        return;
+    dprintf(client[uid]->fd, ":mircd %s %s Channel  :Users  Name\r\n",
+            ResponseCode::RPL_LISTSTART.c_str(),
+            client[uid]->UserID.nickname.c_str());
     if (arg_str.size() == 1) // list a specific channel
     {
         std::string target = arg_str.front();
         arg_str.pop_front();
         int idx = FindChannel(target, uid);
-        dprintf(client[uid]->fd, ":mircd 321 %s Channel  :Users  Name\r\n", client[uid]->UserID.nickname.c_str());
-        dprintf(client[uid]->fd, ":mircd 322 %s %s %d :%s\r\n", client[uid]->UserID.nickname.c_str(), target.c_str(), channels[idx]->nusers, channels[idx]->topic.c_str());
-        dprintf(client[uid]->fd, ":mircd 323 %s :End of /LIST\r\n", client[uid]->UserID.nickname.c_str());
+        dprintf(client[uid]->fd, ":mircd %s %s %s %d :%s\r\n",
+                ResponseCode::RPL_LIST.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                target.c_str(),
+                channels[idx]->nusers,
+                channels[idx]->topic.c_str());
+        dprintf(client[uid]->fd, ":mircd %s %s :End of /LIST\r\n",
+                ResponseCode::RPL_LISTEND.c_str(),
+                client[uid]->UserID.nickname.c_str());
         return;
     }
-    if (kchannel == 0)
-        return;
-    dprintf(client[uid]->fd, ":mircd 321 %s Channel  :Users  Name\r\n", client[uid]->UserID.nickname.c_str());
     for (int i = 0; i < kchannel; i++)
     {
-        dprintf(client[uid]->fd, ":mircd 322 %s %s %d :%s\r\n", client[uid]->UserID.nickname.c_str(), channels[i]->name.c_str(), channels[i]->nusers, channels[i]->topic.c_str());
+        dprintf(client[uid]->fd, ":mircd %s %s %s %d :%s\r\n",
+                ResponseCode::RPL_LIST.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                channels[i]->name.c_str(),
+                channels[i]->nusers,
+                channels[i]->topic.c_str());
     }
-    dprintf(client[uid]->fd, ":mircd 323 %s :End of /LIST\r\n", client[uid]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :End of /LIST\r\n",
+            ResponseCode::RPL_LISTEND.c_str(),
+            client[uid]->UserID.nickname.c_str());
     return;
 }
 int Server::FindChannel(const std::string &target, int &uid)
@@ -378,7 +407,10 @@ int Server::FindChannel(const std::string &target, int &uid)
             return i;
     }
     // (403) ERR_NOSUCHCHANNEL
-    dprintf(client[uid]->fd, ":mircd 403 %s %s :No such channel\r\n", client[uid]->UserID.nickname.c_str(), target.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s %s :No such channel\r\n",
+            ResponseCode::ERR_NOSUCHCHANNEL.c_str(),
+            client[uid]->UserID.nickname.c_str(),
+            target.c_str());
     return -1;
 }
 void Server::join(std::list<std::string> &arg_str, int &uid)
@@ -387,45 +419,54 @@ void Server::join(std::list<std::string> &arg_str, int &uid)
     arg_str.pop_front();
     int idx;
     for (idx = 0; idx < kchannel; idx++)
-    {
         if (channels[idx]->name == channelname)
             break;
-    }
-    if (idx == kchannel)
-    {
-        // new channel created
-        client[uid]->chanID = kchannel;
+    client[uid]->chanID = idx;
+    if (idx == kchannel) // new channel created
         channels[kchannel++] = new Channel(channelname);
-        dprintf(client[uid]->fd, ":%s JOIN %s\r\n", client[uid]->UserID.nickname.c_str(), channelname.c_str());
-        dprintf(client[uid]->fd, ":mircd 331 %s %s :No topic is set\r\n", client[uid]->UserID.nickname.c_str(), channelname.c_str());
-        dprintf(client[uid]->fd, ":mircd 353 %s %s :%s\r\n", client[uid]->UserID.nickname.c_str(), channelname.c_str(), client[uid]->UserID.nickname.c_str());
-        dprintf(client[uid]->fd, ":mircd 366 %s %s :End of Names List\r\n", client[uid]->UserID.nickname.c_str(), channelname.c_str());
-    }
+    else // channel already exist
+        ++channels[idx]->nusers;
+    dprintf(client[uid]->fd, ":%s JOIN %s\r\n", client[uid]->UserID.nickname.c_str(), channelname.c_str());
+    if (channels[idx]->topic == "")
+        dprintf(client[uid]->fd, ":mircd %s %s %s :No topic is set\r\n",
+                ResponseCode::RPL_NOTOPIC.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                channelname.c_str());
     else
-    {
-        // channel already exist
-        client[uid]->chanID = idx;
-        dprintf(client[uid]->fd, ":%s JOIN %s\r\n", client[uid]->UserID.nickname.c_str(), channelname.c_str());
-        if (channels[idx]->topic == "")
-            dprintf(client[uid]->fd, ":mircd 331 %s %s :No topic is set\r\n", client[uid]->UserID.nickname.c_str(), channelname.c_str());
-        else
-            dprintf(client[uid]->fd, ":mircd 332 %s %s :%s\r\n", client[uid]->UserID.nickname.c_str(), channelname.c_str(), channels[idx]->topic.c_str());
-        for (int i = 0; i <= maxconn; ++i)
-            if (client[i]->chanID == idx)
-                dprintf(client[uid]->fd, ":mircd 353 %s %s :%s\r\n", client[uid]->UserID.nickname.c_str(), channelname.c_str(), client[i]->UserID.nickname.c_str());
-        dprintf(client[uid]->fd, ":mircd 366 %s %s :End of Names List\r\n", client[uid]->UserID.nickname.c_str(), channelname.c_str());
-    }
+        dprintf(client[uid]->fd, ":mircd %s %s %s :%s\r\n",
+                ResponseCode::RPL_TOPIC.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                channelname.c_str(),
+                channels[idx]->topic.c_str());
+    for (int i = 0; i <= maxconn; ++i)
+        if (client[i]->chanID == idx)
+            dprintf(client[uid]->fd, ":mircd %s %s %s :%s\r\n",
+                    ResponseCode::RPL_NAMREPLY.c_str(),
+                    client[uid]->UserID.nickname.c_str(),
+                    channelname.c_str(),
+                    client[i]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s %s :End of Names List\r\n",
+            ResponseCode::RPL_ENDOFNAMES.c_str(),
+            client[uid]->UserID.nickname.c_str(),
+            channelname.c_str());
     return;
 }
 void Server::users(std::list<std::string> &arg_str, int &uid)
 {
-    dprintf(client[uid]->fd, ":mircd 392 %s :UserID   Terminal   Host\r\n", client[uid]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :UserID   Terminal   Host\r\n",
+            ResponseCode::RPL_USERSSTART.c_str(),
+            client[uid]->UserID.nickname.c_str());
     for (int i = 0; i <= maxconn; ++i)
-    {
         if (client[i] != nullptr)
-            dprintf(client[uid]->fd, ":mircd 393 %s :%-8s %-9s %-8s\r\n", client[uid]->UserID.nickname.c_str(), client[i]->UserID.nickname.c_str(), DefaultMsg::dash.c_str(), client[i]->getIP().c_str());
-    }
-    dprintf(client[uid]->fd, ":mircd 394 %s :End of users\r\n", client[uid]->UserID.nickname.c_str());
+            dprintf(client[uid]->fd, ":mircd %s %s :%-8s %-9s %-8s\r\n",
+                    ResponseCode::RPL_USERS.c_str(),
+                    client[uid]->UserID.nickname.c_str(),
+                    client[i]->UserID.nickname.c_str(),
+                    DefaultMsg::dash.c_str(),
+                    client[i]->getIP().c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s :End of users\r\n",
+            ResponseCode::RPL_ENDOFUSERS.c_str(),
+            client[uid]->UserID.nickname.c_str());
     return;
 }
 
@@ -438,6 +479,10 @@ void Server::ping(std::list<std::string> &arg_str, int &uid)
 void Server::quit(std::list<std::string> &arg_str, int &uid)
 {
     kusers--;
+    if (client[uid]->chanID != -1)
+    {
+        --channels[client[uid]->chanID]->nusers;
+    }
     while (!arg_str.empty())
         arg_str.pop_front();
     return;
@@ -452,27 +497,36 @@ void Server::topic(std::list<std::string> &arg_str, int &uid)
     // show the topic of a channel
     if (arg_str.size() == 0)
     {
-        if (channels[channelidx]->topic == "")
-        { // no topic
-            dprintf(client[uid]->fd, ":mircd 331 %s %s :No topic is set\r\n", client[uid]->UserID.nickname.c_str(), channels[channelidx]->name.c_str());
-        }
+        if (channels[channelidx]->topic == "") // no topic
+            dprintf(client[uid]->fd, ":mircd %s %s %s :No topic is set\r\n",
+                    ResponseCode::RPL_NOTOPIC.c_str(),
+                    client[uid]->UserID.nickname.c_str(),
+                    channels[channelidx]->name.c_str());
         else
-        {
-            dprintf(client[uid]->fd, ":mircd 332 %s %s :%s\r\n", client[uid]->UserID.nickname.c_str(), channels[channelidx]->name.c_str(), channels[channelidx]->topic.c_str());
-        }
+            dprintf(client[uid]->fd, ":mircd %s %s %s :%s\r\n",
+                    ResponseCode::RPL_TOPIC.c_str(),
+                    client[uid]->UserID.nickname.c_str(),
+                    channels[channelidx]->name.c_str(),
+                    channels[channelidx]->topic.c_str());
     }
     // change the topic ~
     else
     {
-        if (channelidx != client[uid]->chanID)
-        {
-            dprintf(client[uid]->fd, ":mircd 442 %s :You're not on that channel\r\n", channelname.c_str());
-            return;
-        }
         std::string newtopic = arg_str.front();
         arg_str.pop_front();
+        if (channelidx != client[uid]->chanID)
+        {
+            dprintf(client[uid]->fd, ":mircd %s %s :You're not on that channel\r\n",
+                    ResponseCode::ERR_NOTONCHANNEL.c_str(),
+                    channelname.c_str());
+            return;
+        }
         channels[channelidx]->topic = newtopic;
-        dprintf(client[uid]->fd, ":mircd 332 %s %s :%s\r\n", client[uid]->UserID.nickname.c_str(), channels[channelidx]->name.c_str(), newtopic.c_str());
+        dprintf(client[uid]->fd, ":mircd %s %s %s :%s\r\n",
+                ResponseCode::RPL_TOPIC.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                channels[channelidx]->name.c_str(),
+                channels[channelidx]->topic.c_str());
     }
     return;
 }
@@ -485,16 +539,17 @@ void Server::names(std::list<std::string> &arg_str, int &uid)
     if (channelidx == -1)
         return;
     for (int i = 0; i <= maxconn; i++)
-    {
         if (client[i] != nullptr)
-        {
             if (client[i]->chanID == channelidx)
-            {
-                dprintf(client[uid]->fd, ":mircd 353 %s %s :%s\r\n", client[i]->UserID.nickname.c_str(), channels[channelidx]->name.c_str(), client[i]->UserID.nickname.c_str());
-            }
-        }
-    }
-    dprintf(client[uid]->fd, ":mircd 366 %s %s :End of Names List\r\n", client[uid]->UserID.nickname.c_str(), channels[channelidx]->name.c_str());
+                dprintf(client[uid]->fd, ":mircd %s %s %s :%s\r\n",
+                        ResponseCode::RPL_NAMREPLY.c_str(),
+                        client[i]->UserID.nickname.c_str(),
+                        channels[channelidx]->name.c_str(),
+                        client[i]->UserID.nickname.c_str());
+    dprintf(client[uid]->fd, ":mircd %s %s %s :End of Names List\r\n",
+            ResponseCode::RPL_ENDOFNAMES.c_str(),
+            client[uid]->UserID.nickname.c_str(),
+            channels[channelidx]->name.c_str());
     return;
 }
 void Server::part(std::list<std::string> &arg_str, int &uid)
@@ -507,11 +562,17 @@ void Server::part(std::list<std::string> &arg_str, int &uid)
         return;
     if (client[uid]->chanID != channelidx)
     {
-        dprintf(client[uid]->fd, ":mircd 442 %s %s :You're not on that channel\r\n", client[uid]->UserID.nickname.c_str(), targetname.c_str());
+        dprintf(client[uid]->fd, ":mircd %s %s %s :You're not on that channel\r\n",
+            ResponseCode::ERR_NOTONCHANNEL.c_str(),
+            client[uid]->UserID.nickname.c_str(),
+            targetname.c_str());
         return;
     }
     client[uid]->chanID = -1;
-    dprintf(client[uid]->fd, ":%s PART :%s\r\n", client[uid]->UserID.nickname.c_str(), channels[channelidx]->name.c_str());
+    --channels[channelidx]->nusers;
+    dprintf(client[uid]->fd, ":%s PART :%s\r\n",
+            client[uid]->UserID.nickname.c_str(),
+            channels[channelidx]->name.c_str());
     return;
 }
 void Server::privmsg(std::list<std::string> &arg_str, int &uid)
@@ -521,20 +582,15 @@ void Server::privmsg(std::list<std::string> &arg_str, int &uid)
     std::string textmsg = arg_str.front();
     arg_str.pop_front(); // get the user input
     int channelidx = FindChannel(targetname, uid);
-    if (channelidx == -1)
-    { // no such channel
+    if (channelidx == -1) // no such channel
         return;
-    }
     else
-    {
         for (int i = 0; i <= maxconn; i++)
-        {
             if (client[i] != nullptr)
-            {
                 if (client[i]->chanID == channelidx && i != uid)
-                    dprintf(client[i]->fd, ":%s PRIVMSG %s :%s\r\n", client[uid]->UserID.nickname.c_str(), channels[channelidx]->name.c_str(), textmsg.c_str());
-            }
-        }
-    }
+                    dprintf(client[i]->fd, ":%s PRIVMSG %s :%s\r\n",
+                            client[uid]->UserID.nickname.c_str(),
+                            channels[channelidx]->name.c_str(),
+                            textmsg.c_str());
     return;
 }
