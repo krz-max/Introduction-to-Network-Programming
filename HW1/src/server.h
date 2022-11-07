@@ -47,7 +47,7 @@ struct UserInfo
     {
         char ip[INET_ADDRSTRLEN];
         Inet_ntop(AF_INET, (SA *)&CAddr.sin_addr, ip, INET_ADDRSTRLEN);
-        return ip;
+        return (!strcmp(ip, "127.0.0.1")) ? "localhost" : ip;
     }
 };
 struct Channel
@@ -102,5 +102,7 @@ private:
     void quit(std::list<std::string> &arg_str, int &uid);
     // parse cmd
     bool ParseCommand(std::stringstream &ss, int &uid, std::list<std::string> &cmd);
-    int findChannel(const std::string &target);
+    int FindChannel(const std::string &target, int &uid);
+    // Error handling
+    bool checkNickExist(const std::string &target, int &uid);
 };
