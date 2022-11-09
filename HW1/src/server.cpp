@@ -16,16 +16,24 @@ Reply Message :
 [x] (394) RPL_ENDOFUSERS
 
 Error Message :
+NICK : done
+USER : done
+LIST : none
+JOIN : [x]ERR_NEEDMOREPARAMS
+TOPIC : ERR_NEEDMOREPARAMS ERR_NOTONCHANNEL
+NAMES : none
+PART : ERR_NEEDMOREPARAMS ERR_NOSUCHCHANNEL ERR_NOTONCHANNEL
+USERS : none
+PRIVMSG : ERR_NORECIPIENT ERR_NOTEXTTOSEND ERR_NOSUCHNICK
+[x](436) ERR_NICKCOLLISION // NICK
+[*](431) ERR_NONICKNAMEGIVEN // NICK
 [x](403) ERR_NOSUCHCHANNEL // names, part, topic, [x]list.  join & privmsg is always right
 [x](421) ERR_UNKNOWNCOMMAND // ~~
-[x](436) ERR_NICKCOLLISION // nick
 [x](442) ERR_NOTONCHANNEL // topic, part
-[*](431) ERR_NONICKNAMEGIVEN // NICK
+[x](461) ERR_NEEDMOREPARAMS // JOIN, PART, TOPIC
 [*](401) ERR_NOSUCHNICK // PRIVMSG
 [*](411) ERR_NORECIPIENT // PRIVMSG
 [*](412) ERR_NOTEXTTOSEND // PRIVMSG
-[*](451) ERR_NOTREGISTERED // ??
-[*](461) ERR_NEEDMOREPARAMS // JOIN, PART, TOPIC
  */
 
 inline std::string &rtrim(std::string &s)
@@ -311,8 +319,17 @@ bool Server::checkNickExist(const std::string &target, int &uid)
     return false;
 }
 // command function
+// ERR_NONICKNAMEGIVEN ERR_NICKCOLLISION
 void Server::nick(std::list<std::string> &arg_str, int &uid)
 {
+    if (arg_str.empty())
+    {
+        dprintf(client[uid]->fd, ":mircd %s %s %s :No nickname given\r\n",
+                ResponseCode::ERR_NEEDMOREPARAMS.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                "NICK");
+        return;
+    }
     std::string nickname;
     nickname = arg_str.front();
     arg_str.pop_front();
@@ -321,8 +338,17 @@ void Server::nick(std::list<std::string> &arg_str, int &uid)
     client[uid]->UserID.nickname = nickname;
     return;
 }
+// ERR_NEEDMOREPARAMS
 void Server::user(std::list<std::string> &arg_str, int &uid)
 {
+    if (arg_str.size() < 4)
+    {
+        dprintf(client[uid]->fd, ":mircd %s %s %s :Not enough parameters\r\n",
+                ResponseCode::ERR_NEEDMOREPARAMS.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                "USER");
+        return;
+    }
     std::string username, servername, hostname, realname;
     servername = arg_str.front();
     arg_str.pop_front();
@@ -362,6 +388,7 @@ void Server::user(std::list<std::string> &arg_str, int &uid)
             client[uid]->UserID.nickname.c_str());
     return;
 }
+// RPL_LISTSTART RPL_LIST RPL_LISTEND
 void Server::list(std::list<std::string> &arg_str, int &uid)
 {
     if (kchannel == 0)
@@ -413,8 +440,17 @@ int Server::FindChannel(const std::string &target, int &uid)
             target.c_str());
     return -1;
 }
+// ERR_NEEDMOREPARAMS ERR_NOSUCHCHANNEL RPL_TOPIC
 void Server::join(std::list<std::string> &arg_str, int &uid)
-{
+{ // need more param,
+    if (arg_str.empty())
+    {
+        dprintf(client[uid]->fd, ":mircd %s %s %s :Not enough parameters\r\n",
+                ResponseCode::ERR_NEEDMOREPARAMS.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                "JOIN");
+        return;
+    }
     std::string channelname = arg_str.front();
     arg_str.pop_front();
     int idx;
@@ -470,10 +506,19 @@ void Server::users(std::list<std::string> &arg_str, int &uid)
     return;
 }
 
-// not done yet
+// none
 void Server::ping(std::list<std::string> &arg_str, int &uid)
 {
-    dprintf(client[uid]->fd, "PONG %s\r\n", client[uid]->getIP().c_str());
+    std::string srcaddr = arg_str.front();
+    arg_str.pop_front();
+    if (arg_str.size() == 1)
+    {
+        std::string destaddr = arg_str.front();
+        arg_str.pop_front();
+        dprintf(client[uid]->fd, "PONG %s %s\r\n", srcaddr.c_str(), destaddr.c_str());
+        return;
+    }
+    dprintf(client[uid]->fd, "PONG %s\r\n", srcaddr.c_str());
     return;
 }
 void Server::quit(std::list<std::string> &arg_str, int &uid)
@@ -487,13 +532,29 @@ void Server::quit(std::list<std::string> &arg_str, int &uid)
         arg_str.pop_front();
     return;
 }
+// ERR_NEEDMOREPARAMS ERR_NOTONCHANNEL RPL_NOTOPIC RPL_TOPIC
 void Server::topic(std::list<std::string> &arg_str, int &uid)
 {
+    if (arg_str.empty())
+    {
+        dprintf(client[uid]->fd, ":mircd %s %s %s :Not enough parameters\r\n",
+                ResponseCode::ERR_NEEDMOREPARAMS.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                "TOPIC");
+        return;
+    }
     std::string channelname = arg_str.front();
     arg_str.pop_front();
     int channelidx = FindChannel(channelname, uid);
     if (channelidx == -1)
         return;
+    if (channelidx != client[uid]->chanID)
+    {
+        dprintf(client[uid]->fd, ":mircd %s %s :You're not on that channel\r\n",
+                ResponseCode::ERR_NOTONCHANNEL.c_str(),
+                channelname.c_str());
+        return;
+    }
     // show the topic of a channel
     if (arg_str.size() == 0)
     {
@@ -514,13 +575,6 @@ void Server::topic(std::list<std::string> &arg_str, int &uid)
     {
         std::string newtopic = arg_str.front();
         arg_str.pop_front();
-        if (channelidx != client[uid]->chanID)
-        {
-            dprintf(client[uid]->fd, ":mircd %s %s :You're not on that channel\r\n",
-                    ResponseCode::ERR_NOTONCHANNEL.c_str(),
-                    channelname.c_str());
-            return;
-        }
         channels[channelidx]->topic = newtopic;
         dprintf(client[uid]->fd, ":mircd %s %s %s :%s\r\n",
                 ResponseCode::RPL_TOPIC.c_str(),
@@ -531,11 +585,20 @@ void Server::topic(std::list<std::string> &arg_str, int &uid)
     return;
 }
 // channel command
+//  RPL_NAMREPLY                    RPL_ENDOFNAME
 void Server::names(std::list<std::string> &arg_str, int &uid)
 {
-    std::string targetname = arg_str.front();
-    arg_str.pop_front();
-    int channelidx = FindChannel(targetname, uid);
+    int channelidx;
+    if (!arg_str.empty())
+    {
+        std::string targetname = arg_str.front();
+        arg_str.pop_front();
+        channelidx = FindChannel(targetname, uid);
+    }
+    else
+    {
+        channelidx = client[uid]->chanID;
+    }
     if (channelidx == -1)
         return;
     for (int i = 0; i <= maxconn; i++)
@@ -552,20 +615,30 @@ void Server::names(std::list<std::string> &arg_str, int &uid)
             channels[channelidx]->name.c_str());
     return;
 }
+// ERR_NEEDMOREPARAMS ERR_NOSUCHCHANNEL ERR_NOTONCHANNEL
 void Server::part(std::list<std::string> &arg_str, int &uid)
 {
+    if (arg_str.empty())
+    {
+        dprintf(client[uid]->fd, ":mircd %s %s %s :Not enough parameters\r\n",
+                ResponseCode::ERR_NEEDMOREPARAMS.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                "PART");
+        return;
+    }
     std::string targetname = arg_str.front();
     arg_str.pop_front();
-    arg_str.pop_front(); // discard the remaining args
-    int channelidx = FindChannel(targetname, uid);
+    while (!arg_str.empty())
+        arg_str.pop_front();                       // discard the remaining args
+    int channelidx = FindChannel(targetname, uid); // no such channel
     if (channelidx == -1)
         return;
     if (client[uid]->chanID != channelidx)
     {
         dprintf(client[uid]->fd, ":mircd %s %s %s :You're not on that channel\r\n",
-            ResponseCode::ERR_NOTONCHANNEL.c_str(),
-            client[uid]->UserID.nickname.c_str(),
-            targetname.c_str());
+                ResponseCode::ERR_NOTONCHANNEL.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                targetname.c_str());
         return;
     }
     client[uid]->chanID = -1;
@@ -575,15 +648,39 @@ void Server::part(std::list<std::string> &arg_str, int &uid)
             channels[channelidx]->name.c_str());
     return;
 }
+//  ERR_NORECIPIENT ERR_NOTEXTTOSEND ERR_NOSUCHNICK
 void Server::privmsg(std::list<std::string> &arg_str, int &uid)
 {
+    if (arg_str.empty())
+    {
+        dprintf(client[uid]->fd, ":mircd %s %s %s :No recipient given\r\n",
+                ResponseCode::ERR_NOTEXTTOSEND.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                "PRIVMSG");
+        return;
+    }
     std::string targetname = arg_str.front();
     arg_str.pop_front();
-    std::string textmsg = arg_str.front();
-    arg_str.pop_front(); // get the user input
     int channelidx = FindChannel(targetname, uid);
     if (channelidx == -1) // no such channel
         return;
+    if (arg_str.size() == 1)
+    {
+        dprintf(client[uid]->fd, ":mircd %s %s %s :No text to send\r\n",
+                ResponseCode::ERR_NOTEXTTOSEND.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                "PRIVMSG");
+        return;
+    }
+    std::string textmsg = arg_str.front();
+    arg_str.pop_front(); // get the user input
+    if (channelidx != client[uid]->chanID)
+    {
+        dprintf(client[uid]->fd, ":mircd %s %s %s :You're not on that channel\r\n",
+                ResponseCode::ERR_NOTONCHANNEL.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                targetname.c_str());
+    }
     else
         for (int i = 0; i <= maxconn; i++)
             if (client[i] != nullptr)
