@@ -238,6 +238,7 @@ void Server::Server::IncommingReq(int &nready)
 
         // ParseCommand(ss, client[i], cmd);
         Connection(i);
+        fprintf(stdout, "A client has connected\n");
 
         maxfd = std::max(maxfd, connfd);
         maxconn = std::max(maxconn, i);
@@ -268,7 +269,6 @@ void Server::Server::ConnectedReq(int &nready)
             bzero(buf, MAXLINE);
             if ((n = read(s->fd, buf, MAXLINE)) == 0)
             {
-                fprintf(stdout, "Disconnected\r\n");
                 CloseConnection(client[i]->fd, i);
             }
             else
@@ -298,6 +298,7 @@ void Server::Server::ConnectedReq(int &nready)
  */
 void Server::Server::CloseConnection(int &sockfd, int &connidx)
 {
+    fprintf(stdout, "A client has disconnected\n");
     FD_CLR(sockfd, &allset);
     client[connidx] = nullptr;
     close(sockfd);
@@ -309,7 +310,7 @@ bool Server::checkNickExist(const std::string &target, int &uid)
     {
         if (client[i]->UserID.nickname == target)
         { // collision
-            dprintf(client[uid]->fd, ":mircd %s %s %s :Nickname collision\r\n",
+            dprintf(client[uid]->fd, ":mircd %s %s %s :Nickname collision KILL\r\n",
                     ResponseCode::ERR_NICKCOLLISION.c_str(),
                     client[uid]->UserID.nickname.c_str(),
                     target.c_str());
@@ -401,6 +402,7 @@ void Server::list(std::list<std::string> &arg_str, int &uid)
         std::string target = arg_str.front();
         arg_str.pop_front();
         int idx = FindChannel(target, uid);
+        if(idx == -1) return ;
         dprintf(client[uid]->fd, ":mircd %s %s %s %d :%s\r\n",
                 ResponseCode::RPL_LIST.c_str(),
                 client[uid]->UserID.nickname.c_str(),
@@ -506,9 +508,15 @@ void Server::users(std::list<std::string> &arg_str, int &uid)
     return;
 }
 
-// none
+// ERR_NOORIGIN 409
 void Server::ping(std::list<std::string> &arg_str, int &uid)
 {
+    if(arg_str.empty()){
+        dprintf(client[uid]->fd, ":mircd 409 %s %s :No origin specified\r\n",
+                client[uid]->UserID.nickname.c_str(),
+                "PING");
+        return;
+    }
     std::string srcaddr = arg_str.front();
     arg_str.pop_front();
     if (arg_str.size() == 1)
@@ -653,7 +661,7 @@ void Server::privmsg(std::list<std::string> &arg_str, int &uid)
 {
     if (arg_str.empty())
     {
-        dprintf(client[uid]->fd, ":mircd %s %s %s :No recipient given\r\n",
+        dprintf(client[uid]->fd, ":mircd %s %s %s :No recipient given (PRIVMSG)\r\n",
                 ResponseCode::ERR_NOTEXTTOSEND.c_str(),
                 client[uid]->UserID.nickname.c_str(),
                 "PRIVMSG");
@@ -661,10 +669,7 @@ void Server::privmsg(std::list<std::string> &arg_str, int &uid)
     }
     std::string targetname = arg_str.front();
     arg_str.pop_front();
-    int channelidx = FindChannel(targetname, uid);
-    if (channelidx == -1) // no such channel
-        return;
-    if (arg_str.size() == 1)
+    if (arg_str.empty())
     {
         dprintf(client[uid]->fd, ":mircd %s %s %s :No text to send\r\n",
                 ResponseCode::ERR_NOTEXTTOSEND.c_str(),
@@ -672,6 +677,9 @@ void Server::privmsg(std::list<std::string> &arg_str, int &uid)
                 "PRIVMSG");
         return;
     }
+    int channelidx = FindChannel(targetname, uid);
+    if (channelidx == -1) // no such channel
+        return;
     std::string textmsg = arg_str.front();
     arg_str.pop_front(); // get the user input
     if (channelidx != client[uid]->chanID)
