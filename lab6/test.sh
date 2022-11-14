@@ -1,9 +1,11 @@
+#!/bin/sh
+
 test() {
 	sudo tc qdisc del dev lo root netem
 	sudo tc qdisc add dev lo root netem delay $1 rate $2 #loss $3
 	echo "\033[1;33mCONFIG: delay $1 rate $2\033[m"
 	ping -c 1 localhost 2>/dev/null | grep ttl
-	timeout 10 ./clients 127.0.0.1 9998 $3
+	timeout 10 ./client 127.0.0.1 9998 $3
 }
 
 test 2ms  100Mbit	$1

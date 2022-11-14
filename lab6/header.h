@@ -36,7 +36,36 @@ void err_sys(const char* x)
     perror(x);
     exit(1);
 }
+/* Write "n" bytes to a descriptor. */
+size_t writen(int fd, const char *vptr, size_t n)
+{
+	size_t		nleft;
+	ssize_t		nwritten;
+	const char	*ptr;
 
+	ptr = vptr;
+	nleft = n;
+	while (nleft > 0) {
+		if ( (nwritten = write(fd, ptr, nleft)) <= 0) {
+			if (nwritten < 0 && errno == EINTR)
+				nwritten = 0;		/* and call write() again */
+			else
+				return(-1);			/* error */
+		}
+
+		nleft -= nwritten;
+		ptr   += nwritten;
+	}
+	return(n);
+}
+/* end writen */
+// ensure N bytes are written
+int Writen(int fd, const char *ptr, size_t nbytes)
+{
+	if (writen(fd, ptr, nbytes) != nbytes)
+		err_sys("writen error");
+    return nbytes;
+}
 int Accept(int fd, struct sockaddr *sa, socklen_t *salenptr)
 {
 	int		n;
@@ -136,7 +165,7 @@ int Start_TCP_Server(int* sockfd, uint16_t Port, uint64_t INADDR=INADDR_ANY)
 	SAddr.sin_addr.s_addr = htonl(INADDR);
 	Bind(*sockfd, (struct sockaddr*)&SAddr, sizeof(SAddr));
 	Listen(*sockfd, BACKLOGSIZE);
-	std::cout << sockfd << " bind to Port: " << Port << std::endl;
+	std::cout << *sockfd << " bind to Port: " << Port << std::endl;
 	return 0;
 }
 int Start_TCP_Client(int* sockfd, uint16_t Port, const char* IP)

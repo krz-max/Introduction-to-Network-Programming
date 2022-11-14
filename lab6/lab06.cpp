@@ -5,7 +5,7 @@ using namespace std;
 
 int i, maxi, maxfd, listenfd, connfd, nowfd;
 int nready;
-struct pollfd client[1024];
+struct pollfd client[200];
 int writefd;
 ssize_t n;
 fd_set rset, allset;
@@ -26,7 +26,7 @@ inline std::string &rtrim(std::string &s)
 void sig_hand(int signo) {}
 int main(int argc, char **argv)
 {
-	int bytes_counter = 0;
+	long long bytes_counter = 0;
 	Start_TCP_Server(&listenfd, strtol(argv[1], NULL, 10));
 	int flag = 1;
 	setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(int));
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 	client[1].fd = sinkfd;
 	client[0].events = POLLRDNORM;
 	client[1].events = POLLRDNORM;
-	for (i = 2; i < 1024; i++)
+	for (i = 2; i < 200; i++)
 	{
 		client[i].fd = -1; /* -1 indicates available entry */
 	}
@@ -51,13 +51,13 @@ int main(int argc, char **argv)
 		{
 			clilen = sizeof(cliaddr);
 			connfd = Accept(listenfd, (sockaddr *)&cliaddr, &clilen);
-			for (i = 2; i < 1024; i++)
+			for (i = 2; i < 200; i++)
 				if (client[i].fd < 0)
 				{
 					client[i].fd = connfd; /* save descriptor */
 					break;
 				}
-			if (i == 1024)
+			if (i == 200)
 				err_sys("too many clients");
 			client[i].events = POLLRDNORM;
 			if (i > maxi)
@@ -71,13 +71,13 @@ int main(int argc, char **argv)
 		{
 			clilen = sizeof(cliaddr);
 			connfd = Accept(sinkfd, (sockaddr *)&cliaddr, &clilen);
-			for (i = 2; i < 1024; i++)
+			for (i = 2; i < 200; i++)
 				if (client[i].fd < 0)
 				{
 					client[i].fd = connfd; /* save descriptor */
 					break;
 				}
-			if (i == 1024)
+			if (i == 200)
 				err_sys("too many clients");
 
 			client[i].events = POLLRDNORM;
@@ -95,18 +95,7 @@ int main(int argc, char **argv)
 			if (client[i].revents & (POLLRDNORM | POLLERR))
 			{
 				bzero(buf, MAXLINE);
-				if ((n = read(nowfd, buf, MAXLINE)) < 0)
-				{
-					if (errno == ECONNRESET)
-					{
-						/*4connection reset by client */
-						Close(nowfd);
-						client[i].fd = -1;
-					}
-					else
-						err_sys("read error");
-				}
-				else if (n == 0)
+				if ( (n = read(nowfd, buf, MAXLINE)) == 0 )
 				{
 					/*4connection closed by client */
 					Close(nowfd);
@@ -114,39 +103,44 @@ int main(int argc, char **argv)
 				}
 				else
 				{
-					string cmd = buf;
-					cmd = rtrim(cmd);
-					if (cmd[0] == '/')
+					if (buf[0] == '/')
 					{
-						gettimeofday(&e, 0);
-						int sec = e.tv_sec - start.tv_sec;
-						int usec = e.tv_usec - start.tv_usec;
-						int elaps_sec = (float)sec + (usec / 1000.0);
-						if (cmd == "/reset")
+						if (strcmp(buf, "/reset\n") == 0)
 						{
-    						fprintf(stdout, "%.6f", (float)sec * 1000 + (usec / 1000.0));
+							gettimeofday(&start, 0);
+							fprintf(stdout, "%.6f", (float)start.tv_sec * 1000 + (start.tv_usec / 1000.0));
 							cout << " RESET " << bytes_counter << endl;
 							bytes_counter = 0;
 						}
-						else if (cmd == "/ping")
+						else if (strcmp(buf,"ping\n") == 0)
 						{
-    						fprintf(stdout, "%.6f", (float)sec * 1000 + (usec / 1000.0));
-							cout  << " PONG " << endl;
+							fprintf(stdout, "%.6f", (float)e.tv_sec * 1000 + (e.tv_usec / 1000.0));
+							cout << " PONG " << endl;
 						}
-						else if (cmd == "/clients")
+						else if (strcmp(buf,"clients\n") == 0)
 						{
-    						fprintf(stdout, "%.6f", (float)sec * 1000 + (usec / 1000.0));
-							cout  << " CLIENTS " << maxi-2 << endl;
+							fprintf(stdout, "%.6f", (float)e.tv_sec * 1000 + (e.tv_usec / 1000.0));
+							cout << " CLIENTS " << maxi - 2 << endl;
 						}
 						else
 						{
-    						fprintf(stdout, "%.6f", (float)sec * 1000 + (usec / 1000.0));
-							cout  << " REPORT " << bytes_counter << " " << elaps_sec << " " << 8 * bytes_counter / (1000000.0 * elaps_sec) << "Mbps" << endl;
+							gettimeofday(&e, 0);
+							int sec = e.tv_sec - start.tv_sec;
+							int usec = e.tv_usec - start.tv_usec;
+							if (usec < 0){
+								usec += 1000000;
+								sec--;
+							}
+							usec = abs(usec);
+							sec = abs(sec);
+							float elaps_sec = (float)sec + (usec / 1000000.0);
+							fprintf(stdout, "%.6f", (float)e.tv_sec * 1000 + (e.tv_usec / 1000.0));
+							cout << " REPORT " << bytes_counter << " " << elaps_sec << " " << abs(8 * bytes_counter / (1000000.0 * elaps_sec)) << "Mbps" << endl;
 						}
 					}
 					else
 					{
-						bytes_counter += cmd.length();
+						bytes_counter += n;
 					}
 				}
 
