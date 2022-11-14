@@ -127,9 +127,16 @@ bool Server::ParseCommand(std::stringstream &ss, int &uid, std::list<std::string
     }
     else
     {
-        dprintf(client[uid]->fd, ":mircd %s %s %s :Unknown command\r\n",
+        if (client[uid]->isLogin)
+        {
+            dprintf(client[uid]->fd, ":mircd %s %s %s :Unknown command\r\n",
+                    ResponseCode::ERR_UNKNOWNCOMMAND.c_str(),
+                    client[uid]->UserID.nickname.c_str(),
+                    identifier.c_str());
+            return false;
+        }
+        dprintf(client[uid]->fd, ":mircd %s  %s :Unknown command\r\n",
                 ResponseCode::ERR_UNKNOWNCOMMAND.c_str(),
-                client[uid]->UserID.nickname.c_str(),
                 identifier.c_str());
         return false;
     }
@@ -325,10 +332,8 @@ void Server::nick(std::list<std::string> &arg_str, int &uid)
 {
     if (arg_str.empty())
     {
-        dprintf(client[uid]->fd, ":mircd %s %s %s :No nickname given\r\n",
-                ResponseCode::ERR_NEEDMOREPARAMS.c_str(),
-                client[uid]->UserID.nickname.c_str(),
-                "NICK");
+        dprintf(client[uid]->fd, ":mircd %s :No nickname given\r\n",
+                ResponseCode::ERR_NEEDMOREPARAMS.c_str());
         return;
     }
     std::string nickname;
@@ -402,7 +407,8 @@ void Server::list(std::list<std::string> &arg_str, int &uid)
         std::string target = arg_str.front();
         arg_str.pop_front();
         int idx = FindChannel(target, uid);
-        if(idx == -1) return ;
+        if (idx == -1)
+            return;
         dprintf(client[uid]->fd, ":mircd %s %s %s %d :%s\r\n",
                 ResponseCode::RPL_LIST.c_str(),
                 client[uid]->UserID.nickname.c_str(),
@@ -511,7 +517,8 @@ void Server::users(std::list<std::string> &arg_str, int &uid)
 // ERR_NOORIGIN 409
 void Server::ping(std::list<std::string> &arg_str, int &uid)
 {
-    if(arg_str.empty()){
+    if (arg_str.empty())
+    {
         dprintf(client[uid]->fd, ":mircd 409 %s %s :No origin specified\r\n",
                 client[uid]->UserID.nickname.c_str(),
                 "PING");
@@ -661,7 +668,7 @@ void Server::privmsg(std::list<std::string> &arg_str, int &uid)
 {
     if (arg_str.empty())
     {
-        dprintf(client[uid]->fd, ":mircd %s %s %s :No recipient given (PRIVMSG)\r\n",
+        dprintf(client[uid]->fd, ":mircd %s %s :No recipient given (%s)\r\n",
                 ResponseCode::ERR_NOTEXTTOSEND.c_str(),
                 client[uid]->UserID.nickname.c_str(),
                 "PRIVMSG");
@@ -677,9 +684,25 @@ void Server::privmsg(std::list<std::string> &arg_str, int &uid)
                 "PRIVMSG");
         return;
     }
-    int channelidx = FindChannel(targetname, uid);
-    if (channelidx == -1) // no such channel
+    int channelidx = -1;
+    for (int i = 0; i < kchannel; i++)
+    {
+        if(channels[i] != nullptr){
+            if (channels[i]->name == targetname){
+                channelidx = i;
+                break;
+            }
+        }
+    }
+    // 401
+    if (channelidx == -1)
+    {
+        dprintf(client[uid]->fd, ":mircd %s %s %s :No such nick/channel\r\n",
+                ResponseCode::ERR_NOSUCHNICK.c_str(),
+                client[uid]->UserID.nickname.c_str(),
+                targetname.c_str());
         return;
+    }
     std::string textmsg = arg_str.front();
     arg_str.pop_front(); // get the user input
     if (channelidx != client[uid]->chanID)
