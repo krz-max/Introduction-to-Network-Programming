@@ -114,11 +114,13 @@ int main(int argc, char **argv)
 						}
 						else if (strcmp(buf,"ping\n") == 0)
 						{
+							gettimeofday(&e, 0);
 							fprintf(stdout, "%.6f", (float)e.tv_sec * 1000 + (e.tv_usec / 1000.0));
 							cout << " PONG " << endl;
 						}
 						else if (strcmp(buf,"clients\n") == 0)
 						{
+							gettimeofday(&e, 0);
 							fprintf(stdout, "%.6f", (float)e.tv_sec * 1000 + (e.tv_usec / 1000.0));
 							cout << " CLIENTS " << maxi - 2 << endl;
 						}
@@ -127,12 +129,6 @@ int main(int argc, char **argv)
 							gettimeofday(&e, 0);
 							int sec = e.tv_sec - start.tv_sec;
 							int usec = e.tv_usec - start.tv_usec;
-							if (usec < 0){
-								usec += 1000000;
-								sec--;
-							}
-							usec = abs(usec);
-							sec = abs(sec);
 							float elaps_sec = (float)sec + (usec / 1000000.0);
 							fprintf(stdout, "%.6f", (float)e.tv_sec * 1000 + (e.tv_usec / 1000.0));
 							cout << " REPORT " << bytes_counter << " " << elaps_sec << " " << abs(8 * bytes_counter / (1000000.0 * elaps_sec)) << "Mbps" << endl;
@@ -140,6 +136,7 @@ int main(int argc, char **argv)
 					}
 					else
 					{
+						// cout << "rcv: " << n << endl;
 						bytes_counter += n;
 					}
 				}
