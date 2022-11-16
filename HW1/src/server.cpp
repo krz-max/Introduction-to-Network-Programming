@@ -470,7 +470,16 @@ void Server::join(std::list<std::string> &arg_str, int &uid)
         channels[kchannel++] = new Channel(channelname);
     else // channel already exist
         ++channels[idx]->nusers;
-    dprintf(client[uid]->fd, ":%s JOIN %s\r\n", client[uid]->UserID.nickname.c_str(), channelname.c_str());
+    for (int i = 0; i <= maxconn; ++i)
+    {
+        if (client[i] != nullptr)
+        {
+            if (client[i]->chanID == idx)
+            {
+                dprintf(client[i]->fd, ":%s JOIN %s\r\n", client[uid]->UserID.nickname.c_str(), channelname.c_str());
+            }
+        }
+    }
     if (channels[idx]->topic == "")
         dprintf(client[uid]->fd, ":mircd %s %s %s :No topic is set\r\n",
                 ResponseCode::RPL_NOTOPIC.c_str(),
@@ -484,12 +493,15 @@ void Server::join(std::list<std::string> &arg_str, int &uid)
                 channels[idx]->topic.c_str());
     for (int i = 0; i <= maxconn; ++i)
         if (client[i]->chanID == idx)
+        {
             dprintf(client[uid]->fd, ":mircd %s %s %s :%s\r\n",
                     ResponseCode::RPL_NAMREPLY.c_str(),
                     client[uid]->UserID.nickname.c_str(),
                     channelname.c_str(),
                     client[i]->UserID.nickname.c_str());
-    dprintf(client[uid]->fd, ":mircd %s %s %s :End of Names List\r\n",
+            printf("%s\n", client[i]->UserID.nickname.c_str());
+        }
+    dprintf(client[uid]->fd, ":mircd %s @%s %s :End of /NAMES List\r\n",
             ResponseCode::RPL_ENDOFNAMES.c_str(),
             client[uid]->UserID.nickname.c_str(),
             channelname.c_str());
@@ -656,11 +668,20 @@ void Server::part(std::list<std::string> &arg_str, int &uid)
                 targetname.c_str());
         return;
     }
+    for (int i = 0; i <= maxconn; ++i)
+    {
+        if (client[i] != nullptr)
+        {
+            if (client[i]->chanID == channelidx)
+            {
+                dprintf(client[i]->fd, ":%s PART :%s\r\n",
+                        client[uid]->UserID.nickname.c_str(),
+                        channels[channelidx]->name.c_str());
+            }
+        }
+    }
     client[uid]->chanID = -1;
     --channels[channelidx]->nusers;
-    dprintf(client[uid]->fd, ":%s PART :%s\r\n",
-            client[uid]->UserID.nickname.c_str(),
-            channels[channelidx]->name.c_str());
     return;
 }
 //  ERR_NORECIPIENT ERR_NOTEXTTOSEND ERR_NOSUCHNICK
@@ -687,8 +708,10 @@ void Server::privmsg(std::list<std::string> &arg_str, int &uid)
     int channelidx = -1;
     for (int i = 0; i < kchannel; i++)
     {
-        if(channels[i] != nullptr){
-            if (channels[i]->name == targetname){
+        if (channels[i] != nullptr)
+        {
+            if (channels[i]->name == targetname)
+            {
                 channelidx = i;
                 break;
             }
