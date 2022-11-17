@@ -18,6 +18,5 @@ test 14ms 700Mbit	$1
 test 16ms 800Mbit	$1
 test 18ms 900Mbit	$1
 test 20ms 1000Mbit	$1
-
 # cleanup
 sudo tc qdisc del dev lo root netem

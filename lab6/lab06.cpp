@@ -131,12 +131,11 @@ int main(int argc, char **argv)
 							int usec = e.tv_usec - start.tv_usec;
 							float elaps_sec = (float)sec + (usec / 1000000.0);
 							fprintf(stdout, "%.6f", (float)e.tv_sec * 1000 + (e.tv_usec / 1000.0));
-							cout << " REPORT " << bytes_counter << " " << elaps_sec << " " << abs(8 * bytes_counter / (1000000.0 * elaps_sec)) << "Mbps" << endl;
+							cout << " REPORT " << bytes_counter << " " << elaps_sec << " " << 8 * bytes_counter / (1000000.0 * elaps_sec) << "Mbps" << endl;
 						}
 					}
 					else
 					{
-						// cout << "rcv: " << n << endl;
 						bytes_counter += n;
 					}
 				}

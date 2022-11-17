@@ -1,16 +1,17 @@
 #include "header.h"
 
 #define IP "127.0.0.1"
-#define PORT 10002
-#define HOST "inp111.zoolab.org"
-#define MAXLINE 10000
-#define NCLIENTS 12
+#define MAXLINE 1500
+#define NCLIENTS 15
 using namespace std;
 
 int cmdfd;
 int sinkfd[NCLIENTS];
 
 void sig_hand(int en){
+    for(int i = 0; i < NCLIENTS; i++){
+        close(sinkfd[i]);
+    }
     dprintf(cmdfd, "/report\n");
     exit(0);
 }
