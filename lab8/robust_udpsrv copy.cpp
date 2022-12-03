@@ -32,8 +32,8 @@ using namespace std;
 				   ((unsigned char *)&s)[2], \
 				   ((unsigned char *)&s)[3]
 
-struct timeval timeout = {4, 0};
-int max_timeout_try = 5;
+struct timeval timeout = {3, 0};
+int max_timeout_try = 4;
 const char ack[4] = {"ACK"};
 int sim_loss = 0;
 string folderpath;

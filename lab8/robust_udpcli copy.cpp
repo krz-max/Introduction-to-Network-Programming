@@ -45,8 +45,8 @@ const char conn_request[9] = "CONN_REQ";
 const char endoffile[10] = "ENDOFFILE";
 
 int window_size = 10;
-struct timeval timeout = {4, 0};
-int max_timeout_try = 5;
+struct timeval timeout = {3, 0};
+int max_timeout_try = 4;
 
 string folderpath = "";
 string addr = "";
@@ -158,19 +158,19 @@ void dg_cli()
 		{
 			string seq;
 			char temp[MAXLINE];
-			char buf[MAXLINE];
 			for (fragment_num = 0; fragment_num < send_idx_buffer.size(); fragment_num++)
 			{
+				if (send_idx_buffer[fragment_num] < 0)
+					continue;
 				sprintf(temp, "SEQNUM%3d", send_idx_buffer[fragment_num]);
 				seq = temp;
 				cout << seq << endl;
 				seq += send_buffer[fragment_num];
-				do{
-					sendmsg((void *)seq.c_str(), seq.length());
-				}while( (n = getresponse(buf)) < 0 && strncmp(buf, "ACK", 3) );
-				sleep(0.01);
+				sendmsg((void *)seq.c_str(), seq.length());
+				sleep(1);
 			}
 			// get all the buffered response
+			char buf[MAXLINE];
 			while ((n = getresponse(buf)) == 0 && !strcmp(buf, "ACK"))
 				;
 			if (n == 0)
