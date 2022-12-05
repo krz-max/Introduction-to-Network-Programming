@@ -1,6 +1,0 @@
-#!/bin/sh
-
-diff 000000 tmp/000000
-diff 000001 tmp/000001
-diff 000002 tmp/000002
-diff 000003 tmp/000003

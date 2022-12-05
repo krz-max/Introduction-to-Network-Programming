@@ -20,6 +20,11 @@
 
 using namespace std;
 
+#define INIT 0
+#define WAIT_FILE_REQ 1
+#define WAIT_NAME 4
+#define RECV 2
+#define WRIT 3
 #define MAXLINE 2500
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 #define err_quit(m) \
@@ -32,9 +37,12 @@ using namespace std;
 				   ((unsigned char *)&s)[2], \
 				   ((unsigned char *)&s)[3]
 
-struct timeval timeout = {4, 0};
+int state = INIT;
+struct timeval timeout = {1, 0};
 int max_timeout_try = 5;
-const char ack[4] = {"ACK"};
+int b = 100000;
+const char ack[4][6] = {{"ACKFQ"}, {"ACKFN"}, {"ACKCQ"}, {"ACKEF"}};
+const char ACK[4] = "ACK";
 int sim_loss = 0;
 string folderpath;
 int kfile;
@@ -54,13 +62,12 @@ void Start_UDP_Server()
 	if (bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
 		err_quit("bind");
 	setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+	setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &b, sizeof(b));
 }
 void sendmsg(void *sendline, int size)
 {
 	clilen = sizeof(cliaddr);
 	sendto(sockfd, sendline, size, 0, (sockaddr *)&cliaddr, clilen);
-	fprintf(stderr, "S: PING %u.%u.%u.%u/%u, init seq = %d\n",
-		NIPQUAD(cliaddr.sin_addr), ntohs(cliaddr.sin_port), 0);
 }
 int getresponse(void *buf)
 {
@@ -77,68 +84,126 @@ int getresponse(void *buf)
 			err_quit("recvfrom error");
 	}
 	((char *)buf)[n] = 0;
-	fprintf(stdout, "S: cli resp: %s\n", (char *)buf);
+	string temp = (char *)buf;
+	temp = temp.substr(0, 9);
+	fprintf(stdout, "S: cli resp: %s\n", temp.c_str());
 	return 0;
 }
 void dg_echo()
 {
+	int rcvwait;
 	size_t n;
 	char buf[MAXLINE];
+	string path;
+	ofstream f_out;
+	map<int, string> output_buf;
 	for (;;)
 	{
 		bzero(&buf, sizeof(buf));
-		while( getresponse(buf) < 0 );
-		if (!strcmp(buf, "FILE_REQ"))
+		if (state == INIT)
 		{
-			// let client know serv has received filename
-			fprintf(stdout, "S: file request\n");
-			sendmsg((void *)ack, sizeof(ack));
-			// get file name
-			fprintf(stdout, "S: waiting for file name...\n");
-			while( getresponse(buf) < 0 );
-			sendmsg((void *)ack, sizeof(ack));
-
-			string path = folderpath + "/" + buf;
-			fprintf(stdout, "S: storing file in \"%s\"\n", path.c_str());
-			ofstream f_out(path.c_str());
-			if(!f_out) err_quit("fopen failed");
-			map<int, string> output_buf;
-			while(1)
-			{
-				if(getresponse(buf) < 0)
-					continue;
-				if(!strcmp(buf, "ENDOFFILE")){
-					sendmsg((void *)ack, strlen(ack));
-					break;
-				}
-				if(!strncmp(buf, "SEQNUM", 6) && !sim_loss){
-					string temp = buf;
-					// parse number
-					string num_str = temp.substr(6, 3);
-					fprintf(stdout, "S: pkt num: %s\n", num_str.c_str());
-					string ack_seq = ack + num_str;
-					sendmsg((void *)ack_seq.c_str(), ack_seq.length());
-					
-					// store data
-					string data = temp.substr(9);
-					int num = strtol(num_str.c_str(), NULL, 10);
-					output_buf[num] = data;
-					fprintf(stdout, "S: seq num: %d\n", num);
-				}
-				sim_loss = rand() % 2;
-			}
-			printf("file %s done\n", path.c_str());
-			fprintf(stdout, "S: start writing file...\n");
-			for(auto it:output_buf){
-				f_out << it.second;
-			}
-			f_out.close();
-		}
-		else if (!strcmp(buf, "CONN_REQ"))
-		{
+			// ignore other message and wait conn_req
+			if (getresponse(buf) < 0 || strcmp(buf, "CONN_REQ"))
+				continue;
+			if(cliaddr.sin_port == 0) continue;
 			fprintf(stderr, "S: PING %u.%u.%u.%u/%u, init seq = %d\n",
-				NIPQUAD(cliaddr.sin_addr), ntohs(cliaddr.sin_port), 0);
-			sendmsg((void *)ack, strlen(ack));
+					NIPQUAD(cliaddr.sin_addr), ntohs(cliaddr.sin_port), 0);
+			sendmsg((void *)ack[2], sizeof(ack[2]));
+			sendmsg((void *)ack[2], sizeof(ack[2]));
+			sendmsg((void *)ack[2], sizeof(ack[2]));
+			state = WAIT_FILE_REQ;
+			fprintf(stdout, "S: wait file request\n");
+		}
+		else if (state == WAIT_FILE_REQ)
+		{
+			if (getresponse(buf) < 0 || strcmp(buf, "FILE_REQ")){
+				if(!strncmp(buf, "000", 3)){
+					sendmsg((void *)ack[1], sizeof(ack[1]));
+					sendmsg((void *)ack[1], sizeof(ack[1]));
+					sendmsg((void *)ack[1], sizeof(ack[1]));
+					continue;
+				}
+				sendmsg((void *)ack[2], sizeof(ack[2]));
+				sendmsg((void *)ack[2], sizeof(ack[2]));
+				sendmsg((void *)ack[2], sizeof(ack[2]));
+				continue;
+			}
+			state = WAIT_NAME;
+			sendmsg((void *)ack[0], sizeof(ack[0]));
+			sendmsg((void *)ack[0], sizeof(ack[0]));
+			sendmsg((void *)ack[0], sizeof(ack[0]));
+			fprintf(stdout, "S: waite for file name...\n");
+		}
+		else if (state == WAIT_NAME)
+		{
+			if (getresponse(buf) < 0 || !strcmp(buf, "FILE_REQ")){
+				sendmsg((void *)ack[0], sizeof(ack[0]));
+				sendmsg((void *)ack[0], sizeof(ack[0]));
+				sendmsg((void *)ack[0], sizeof(ack[0]));
+				continue;
+			}
+			sendmsg((void *)ack[1], sizeof(ack[1]));
+			sendmsg((void *)ack[1], sizeof(ack[1]));
+			sendmsg((void *)ack[1], sizeof(ack[1]));
+			path = folderpath + "/" + buf;
+			fprintf(stdout, "S: storing file in \"%s\"\n", path.c_str());
+			f_out.open(path.c_str());
+			if (!f_out)
+				err_quit("fopen failed");
+			state = RECV;
+			rcvwait = 8;
+		}
+		else if (state == RECV)
+		{
+			if (getresponse(buf) < 0)
+				continue;
+			if (!strcmp(buf, "ENDOFFILE") || rcvwait == 0)
+			{
+				sendmsg((void *)ack[3], strlen(ack[3]));
+				sendmsg((void *)ack[3], strlen(ack[3]));
+				sendmsg((void *)ack[3], strlen(ack[3]));
+				printf("file %s done sending, start writng\n", path.c_str());
+				state = WRIT;
+			}
+			if (!strncmp(buf, "SEQNUM", 6))
+			{
+				string temp = buf;
+				string size_str = temp.substr(13, 3);
+				rcvwait = 10;
+				if(strtol(size_str.c_str(), NULL, 10) != temp.length()-16){
+					continue;
+				}
+				// parse number
+				string num_str = temp.substr(6, 3);
+				string ack_seq = ACK + num_str;
+				sendmsg((void *)ack_seq.c_str(), ack_seq.length());
+				sendmsg((void *)ack_seq.c_str(), ack_seq.length());
+				sendmsg((void *)ack_seq.c_str(), ack_seq.length());
+
+				// store data
+				string data = temp.substr(16);
+				int num = strtol(num_str.c_str(), NULL, 10);
+				output_buf[num] = data;
+				fprintf(stdout, "S: seq num: %d\n", num);
+			}
+			else{
+				sendmsg((void *)ack[1], sizeof(ack[1]));
+				sendmsg((void *)ack[1], sizeof(ack[1]));
+				sendmsg((void *)ack[1], sizeof(ack[1]));
+				rcvwait--;
+			}
+		}
+		else if (state == WRIT)
+		{
+			for (auto it : output_buf)
+				f_out << it.second;
+			f_out.close();
+			sendmsg((void *)ack[3], strlen(ack[3]));
+			sendmsg((void *)ack[3], strlen(ack[3]));
+			sendmsg((void *)ack[3], strlen(ack[3]));
+			cout << "writing file done, ready for next transfer" << endl;
+			output_buf.clear();
+			state = WAIT_FILE_REQ;
 		}
 	}
 }
@@ -156,6 +221,7 @@ int main(int argc, char *argv[])
 	kfile = strtol(argv[2], NULL, 10);
 	port = strtol(argv[3], NULL, 10);
 	Start_UDP_Server();
+	state = INIT;
 
 	dg_echo();
 	close(sockfd);

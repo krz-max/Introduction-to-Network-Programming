@@ -43,10 +43,11 @@ static unsigned count = 0;
 const char file_request[9] = "FILE_REQ";
 const char conn_request[9] = "CONN_REQ";
 const char endoffile[10] = "ENDOFFILE";
-
+const char ack[4][6] = {{"ACKFQ"}, {"ACKFN"}, {"ACKCQ"}, {"ACKEF"}};
+const char ACK[4] = "ACK";
 int window_size = 10;
-struct timeval timeout = {4, 0};
-int max_timeout_try = 5;
+struct timeval timeout = {1, 0};
+int max_timeout_try = 1;
 
 string folderpath = "";
 string addr = "";
@@ -89,7 +90,7 @@ int getresponse(void *buf)
 	fprintf(stdout, "C: serv resp: %s\n", (char *)buf);
 	return 0;
 }
-int sendandwaitACK(void *sendline, int size)
+int sendandwaitACK(void *sendline, int size, void *waitline, int conn)
 {
 	int n;
 	servlen = sizeof(servaddr);
@@ -97,9 +98,11 @@ int sendandwaitACK(void *sendline, int size)
 	bzero(&buf, sizeof(buf));
 	for (int i = 0; i < max_timeout_try; i++)
 	{
+		if (conn == 1)
+			i--;
 		sendto(sockfd, sendline, size, 0, (sockaddr *)&servaddr, servlen);
 		n = getresponse(buf);
-		if (n < 0)
+		if (n < 0 || strcmp(buf, (char *)waitline))
 			continue;
 		return 0;
 	}
@@ -112,9 +115,11 @@ void dg_cli()
 	char filename[7] = {"000"};
 	for (int i = 0; i < kfile; i++)
 	{
+		// clear the buffer
+		char dump[MAXLINE];
+		while (getresponse(dump) == 0);
 		fprintf(stdout, "C: initializing file transer..\n");
-		sendandwaitACK((void *)file_request, 9);
-
+		sendandwaitACK((void *)file_request, 9, (void *)ack[0], 1);
 		fprintf(stdout, "C: file transer connection established!\n");
 
 		fprintf(stdout, "C: trying to send the file name...\n");
@@ -123,7 +128,7 @@ void dg_cli()
 		filename[5] = i % 10 + '0';
 		filename[6] = 0;
 		string path = folderpath + "/" + filename;
-		sendandwaitACK((char *)filename, 6);
+		sendandwaitACK((char *)filename, 6, (void *)ack[1], 1);
 
 		fprintf(stdout, "C: file name received by server: %s\n", path.c_str());
 
@@ -143,53 +148,76 @@ void dg_cli()
 			string buf;
 			if (f_in >> buf)
 			{
-				send_buffer.push_back(buf);
-				send_idx_buffer.push_back(fragment_num);
-				fragment_num++;
+				int l = buf.length();
+				int k = l / 500;
+				for (int i = 0; i < k; i++)
+				{
+					send_buffer.push_back(buf.substr(500 * i, 500));
+					send_idx_buffer.push_back(fragment_num);
+					fragment_num++;
+				}
+				if ((k = l % 500) > 0)
+				{
+					send_buffer.push_back(buf.substr(500 * fragment_num));
+					send_idx_buffer.push_back(fragment_num++);
+				}
 			}
 			else
 				break;
 		}
 		howmanyfragment = send_buffer.size();
 		fprintf(stdout, "C: start sending file:...\n");
-		fragment_num = 0;
 		int ack_num = 0;
 		while (ack_num < howmanyfragment)
 		{
 			string seq;
 			char temp[MAXLINE];
 			char buf[MAXLINE];
-			for (fragment_num = 0; fragment_num < send_idx_buffer.size(); fragment_num++)
+			fragment_num = 0;
+			while (fragment_num < send_idx_buffer.size())
 			{
-				sprintf(temp, "SEQNUM%3d", send_idx_buffer[fragment_num]);
-				seq = temp;
-				cout << seq << endl;
-				seq += send_buffer[fragment_num];
-				do{
+				int i = fragment_num;
+				for (; i < send_idx_buffer.size() && i < fragment_num+25; i++)
+				{
+					if (send_idx_buffer[i] < 0){
+						fragment_num++;
+						continue;
+					}
+					sprintf(temp, "SEQNUM%3dSIZE%3ld", send_idx_buffer[i], send_buffer[i].length());
+					seq = temp;
+					seq += send_buffer[i];
 					sendmsg((void *)seq.c_str(), seq.length());
-				}while( (n = getresponse(buf)) < 0 && strncmp(buf, "ACK", 3) );
-				sleep(0.01);
+					if ((n = getresponse(buf)) == 0)
+					{
+						string tmp = buf;
+						int num = strtol(tmp.substr(3).c_str(), NULL, 10);
+						if(send_idx_buffer[num] != -1) ack_num++;
+						send_idx_buffer[num] = -1;
+					}
+				}
+				sleep(0.1);
+				fragment_num = i;
 			}
 			// get all the buffered response
-			while ((n = getresponse(buf)) == 0 && !strcmp(buf, "ACK"))
-				;
-			if (n == 0)
+			while ((n = getresponse(buf)) == 0)
 			{
-				do
-				{
-					string tmp = buf;
-					int num = strtol(tmp.substr(3).c_str(), NULL, 10);
-					fprintf(stdout, "C: ack: %d\n", num);
-					send_idx_buffer[num] = -1;
-					ack_num++;
-					fprintf(stdout, "C: latest acked fragment: %s\n", (char *)buf);
-				} while (getresponse(buf) == 0);
+				string tmp = buf;
+				int num = strtol(tmp.substr(3).c_str(), NULL, 10);
+				if(send_idx_buffer[num] != -1) ack_num++;
+				send_idx_buffer[num] = -1;
 			}
-			fprintf(stdout, "C: nothing acked: %s\n", (char *)buf);
-
-			// first try
+			fprintf(stdout, "C: latest acked fragment: %s, total: %d\n", (char *)buf, ack_num);
+			cout << "unakced: {";
+			for (int i = 0; i < send_idx_buffer.size(); i++)
+			{
+				if (send_idx_buffer[i] < 0)
+					continue;
+				cout << i << ", ";
+			}
+			cout << "}" << endl;
 		}
-		sendmsg((void *)endoffile, sizeof(endoffile));
+		sendandwaitACK((void *)endoffile, strlen(endoffile), (void *)ack[3], 0);
+		sleep(1);
 	}
 }
 int main(int argc, char *argv[])
@@ -213,11 +241,7 @@ int main(int argc, char *argv[])
 	cout << "Connecting to UDP server..." << addr.c_str() << ":" << port << endl;
 	cout << "Waiting for server response...\n";
 	char buf[MAXLINE];
-	int ret = getresponse(buf);
-	do
-	{
-		sendmsg((void *)conn_request, sizeof(conn_request));
-	} while (getresponse(buf) < 0);
+	sendandwaitACK((void *)conn_request, sizeof(conn_request), (void *)ack[2], 1);
 
 	fprintf(stdout, "C: connection established, start sending file...\n");
 
