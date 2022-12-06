@@ -97,20 +97,36 @@ void dg_echo()
 	string path;
 	ofstream f_out;
 	map<int, string> output_buf;
-	state = WAIT_FILE_REQ;
 	for (;;)
 	{
 		bzero(&buf, sizeof(buf));
-		if (state == WAIT_FILE_REQ)
+		if (state == INIT)
+		{
+			// ignore other message and wait conn_req
+			if (getresponse(buf) < 0 || strcmp(buf, "CONN_REQ"))
+				continue;
+			if(cliaddr.sin_port == 0) continue;
+			fprintf(stderr, "S: PING %u.%u.%u.%u/%u, init seq = %d\n",
+					NIPQUAD(cliaddr.sin_addr), ntohs(cliaddr.sin_port), 0);
+			sendmsg((void *)ack[2], sizeof(ack[2]));
+			sendmsg((void *)ack[2], sizeof(ack[2]));
+			sendmsg((void *)ack[2], sizeof(ack[2]));
+			state = WAIT_FILE_REQ;
+			fprintf(stdout, "S: wait file request\n");
+		}
+		else if (state == WAIT_FILE_REQ)
 		{
 			if (getresponse(buf) < 0 || strcmp(buf, "FILE_REQ")){
 				if(!strncmp(buf, "000", 3)){
 					sendmsg((void *)ack[1], sizeof(ack[1]));
 					sendmsg((void *)ack[1], sizeof(ack[1]));
 					sendmsg((void *)ack[1], sizeof(ack[1]));
-					state = RECV;
 					continue;
 				}
+				sendmsg((void *)ack[2], sizeof(ack[2]));
+				sendmsg((void *)ack[2], sizeof(ack[2]));
+				sendmsg((void *)ack[2], sizeof(ack[2]));
+				continue;
 			}
 			state = WAIT_NAME;
 			sendmsg((void *)ack[0], sizeof(ack[0]));
@@ -139,16 +155,15 @@ void dg_echo()
 		}
 		else if (state == RECV)
 		{
-			if (getresponse(buf) < 0){
-				rcvwait--;
+			if (getresponse(buf) < 0)
 				continue;
-			}
-			if (!strcmp(buf, "ENDOFFILE") || rcvwait == 0 || !strcmp(buf, "FILE_REQ"))
+			if (!strcmp(buf, "ENDOFFILE") || rcvwait == 0)
 			{
+				sendmsg((void *)ack[3], strlen(ack[3]));
+				sendmsg((void *)ack[3], strlen(ack[3]));
 				sendmsg((void *)ack[3], strlen(ack[3]));
 				printf("file %s done sending, start writng\n", path.c_str());
 				state = WRIT;
-				continue;
 			}
 			if (!strncmp(buf, "SEQNUM", 6))
 			{
@@ -171,13 +186,10 @@ void dg_echo()
 				output_buf[num] = data;
 				fprintf(stdout, "S: seq num: %d\n", num);
 			}
-			if(!strncmp(buf, "000", 3)){
-				sendmsg((void *)ack[1], sizeof(ack[1]));
-				sendmsg((void *)ack[1], sizeof(ack[1]));
-				sendmsg((void *)ack[1], sizeof(ack[1]));
-				continue;
-			}
 			else{
+				sendmsg((void *)ack[1], sizeof(ack[1]));
+				sendmsg((void *)ack[1], sizeof(ack[1]));
+				sendmsg((void *)ack[1], sizeof(ack[1]));
 				rcvwait--;
 			}
 		}
@@ -186,6 +198,8 @@ void dg_echo()
 			for (auto it : output_buf)
 				f_out << it.second;
 			f_out.close();
+			sendmsg((void *)ack[3], strlen(ack[3]));
+			sendmsg((void *)ack[3], strlen(ack[3]));
 			sendmsg((void *)ack[3], strlen(ack[3]));
 			cout << "writing file done, ready for next transfer" << endl;
 			output_buf.clear();

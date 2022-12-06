@@ -238,6 +238,13 @@ int main(int argc, char *argv[])
 	addr = argv[4];
 	Start_UDP_Client();
 
+	cout << "Connecting to UDP server..." << addr.c_str() << ":" << port << endl;
+	cout << "Waiting for server response...\n";
+	char buf[MAXLINE];
+	sendandwaitACK((void *)conn_request, sizeof(conn_request), (void *)ack[2], 1);
+
+	fprintf(stdout, "C: connection established, start sending file...\n");
+
 	dg_cli();
 
 	close(s);
