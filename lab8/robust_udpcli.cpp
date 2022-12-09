@@ -40,7 +40,7 @@ using namespace std;
 const char endoffile[10] = "ENDOFFILE";
 const char ack[4][6] = {{"ACKFQ"}, {"ACKFN"}, {"ACKCQ"}, {"ACKEF"}};
 const char ACK[4] = "ACK";
-struct timeval timeout = {0, 200000};
+struct timeval timeout = {0, 150000};
 
 string folderpath = "";
 string addr = "";
@@ -205,6 +205,7 @@ void dg_cli(int start, int k_file)
 		}
 		// cout << "ENDOFFILE" << filename << endl;
 	}
+	return ;
 }
 int main(int argc, char *argv[])
 {
@@ -232,6 +233,7 @@ int main(int argc, char *argv[])
 		{
 			Start_UDP_Client();
 			dg_cli(start, k_file);
+			exit(0);
 		}
 		start += k_file;
 		close(sockfd);
@@ -239,5 +241,6 @@ int main(int argc, char *argv[])
 	}
 	for (int i = 0; i < 15; i++)
 		wait(nullptr);
+	sleep(1);
 	return 0;
 }

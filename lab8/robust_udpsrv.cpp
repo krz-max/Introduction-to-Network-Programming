@@ -103,14 +103,10 @@ void dg_echo()
 			{
 				string fname = recvline.substr(9, 6);
 				int fID = strtol(fname.substr(3).c_str(), NULL, 10);
+				char sendline[MAXLINE];
 				if (output_buf[fID].empty())
 				{
-					char sendline[MAXLINE];
 					sprintf(sendline, "%s%s", ack[3], fname.c_str());
-					sendmsg((void *)sendline, 11);
-					sendmsg((void *)sendline, 11);
-					sendmsg((void *)sendline, 11);
-					sendmsg((void *)sendline, 11);
 					sendmsg((void *)sendline, 11);
 					continue;
 				}
@@ -123,10 +119,7 @@ void dg_echo()
 				}
 				f_out.close();
 				written[fID] = 1;
-				char sendline[MAXLINE];
 				sprintf(sendline, "%s%s", ack[3], fname.c_str());
-				sendmsg((void *)sendline, 11);
-				sendmsg((void *)sendline, 11);
 				sendmsg((void *)sendline, 11);
 				sendmsg((void *)sendline, 11);
 				sendmsg((void *)sendline, 11);
