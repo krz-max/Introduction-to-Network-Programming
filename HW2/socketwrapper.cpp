@@ -52,3 +52,14 @@ const char *Inet_ntop(int family, const void *addrptr, char *str, size_t len)
     }
     return result;
 }
+
+int Inet_pton(int family, const char *addr, void *buf)
+{
+    ssize_t n;
+    if ((n = inet_pton(family, addr, buf)) < 0)
+    {
+        fprintf(stderr, "inet_pton error for %s\n", addr);
+        return n;
+    }
+    return n;
+}
