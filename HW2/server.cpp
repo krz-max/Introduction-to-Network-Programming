@@ -5,6 +5,15 @@
                    ((unsigned char *)&s)[2], \
                    ((unsigned char *)&s)[3]
 using namespace std;
+
+string &rtrim(string &s)
+{
+    if (s.empty())
+        return s;
+
+    s.erase(s.find_last_not_of(" \n\r") + 1);
+    return s;
+}
 void hexdump(void *in, int sz)
 {
     int i, j;
@@ -32,8 +41,7 @@ dns::dns(const char *config_file, in_port_t port)
     string temp;
     while (getline(f_in, temp))
     {
-        if (temp.back() == 0x0d)
-            temp.pop_back();
+        temp = rtrim(temp);
         // include trailing '.'
         string root = temp.substr(0, temp.find(','));
         zones[root].zone_name = root;
@@ -234,16 +242,15 @@ uint8_t* dns::do_forward_query(uint8_t *recvline, size_t &sz, const string &quer
 	bzero(&SAddr, sizeof(SAddr));
 	SAddr.sin_family = AF_INET;
 	SAddr.sin_port = htons(53);
-	cout << inet_pton(AF_INET, forward_ip.c_str(), &SAddr.sin_addr) << endl;
+    SAddr.sin_addr.s_addr = inet_addr(forward_ip.c_str());
     s = Socket(AF_INET, SOCK_DGRAM, 0);
-    cout << s << endl;
     struct header *hdptr = (struct header *)recvline;
     hdptr->flags = htons(0x0180);
-    hexdump(recvline, sz);
 
+    hexdump(recvline, sz);
     SLen = sizeof(SAddr);
-    cout << sendto(s, recvline, sz, 0, (struct SA *)&SAddr, SLen) << endl;
-    cout << (sz = recvfrom(s, recvline, 512, 0, (struct SA *)&SAddr, &SLen)) << endl;
+    sendto(s, recvline, sz, 0, (struct SA *)&SAddr, SLen);
+    sz = recvfrom(s, recvline, 512, 0, (struct SA *)&SAddr, &SLen);
     hexdump(recvline, sz);
     return recvline;
 }
@@ -325,7 +332,6 @@ uint8_t *Zone::get_authority(uint8_t *walk_ptr, const uint16_t &qtype, const uin
             walk_ptr = this->append_rr(walk_ptr, qtype, _class, this->_SOA._ttl, this->_SOA._length);
             walk_ptr = copy_string(walk_ptr, this->_SOA.m_name, true);
             walk_ptr = copy_string(walk_ptr, this->_SOA.r_name, true);
-            cout << this->_SOA.serial << " " << this->_SOA.retry << " " << this->_SOA.expire << " " << this->_SOA.minimum << endl;
             *(uint32_t *)walk_ptr = htonl(this->_SOA.serial);
             walk_ptr += 4;
             *(int *)walk_ptr = htonl(this->_SOA.refresh);
@@ -350,7 +356,6 @@ uint8_t *Zone::get_authority(uint8_t *walk_ptr, const uint16_t &qtype, const uin
                 if (it->Qtype == TypeID::TYPE_NS)
                 {
                     walk_ptr = this->append_rr(walk_ptr, qtype, _class, it->_ttl, it->_length);
-                    cout << it->info << endl;
                     walk_ptr = copy_string(walk_ptr, it->info, true);
                     arcount++;
                 }
