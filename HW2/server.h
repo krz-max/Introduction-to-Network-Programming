@@ -22,6 +22,17 @@ namespace TypeID
     const int TYPE_AAAA = 28;
     const int CLASS_IN = 1;
 };
+namespace Prefix
+{
+    const std::string TYPE_A = "__A__";
+    const std::string TYPE_NS = "__NS__";
+    const std::string TYPE_CNAME = "__CNAME__";
+    const std::string TYPE_SOA = "__SOA__";
+    const std::string TYPE_MX = "__MX__";
+    const std::string TYPE_TXT = "__TXT__";
+    const std::string TYPE_AAAA = "__AAAA__";
+    const std::string TYPE_IN = "__IN__";
+};
 static std::unordered_map<uint16_t, std::string> QTYPE_TABLE =
     {{1, "A"},
      {2, "NS"},
@@ -48,8 +59,8 @@ struct header
     uint16_t flags;
     uint16_t qdcount;
     uint16_t ancount;
-    uint16_t nscount;
     uint16_t arcount;
+    uint16_t nscount;
 };
 struct question
 {
@@ -153,9 +164,10 @@ struct Zone
     void print_info();          // only print RR records in this node and whether it has subzones
     void update_info(int, uint16_t, uint16_t, std::string);
     uint8_t* append_rr(uint8_t*, const uint16_t&, const uint16_t&, const uint32_t&, const uint16_t&);
-    uint8_t* get_answer(uint8_t*, const uint16_t&, const uint16_t& , uint16_t&);
+    uint8_t* get_answer(uint8_t*, const uint16_t&, const uint16_t& , uint16_t&, std::string&);
     uint8_t* get_additional(uint8_t*, const uint16_t&, const uint16_t& , uint16_t&);
     uint8_t* get_authority(uint8_t*, const uint16_t&, const uint16_t& , uint16_t&);
+    std::string get_NS_name();
 };
 // udp server
 class dns
@@ -166,7 +178,9 @@ public:
     void setup();
     void start();
     void summary();
-    uint8_t* start_query(uint8_t* , const std::string&, const uint16_t&, const uint16_t&, uint16_t&, uint16_t&, uint16_t&);
+    uint8_t* start_query(uint8_t* , const std::string&, const uint16_t&, const uint16_t&, const std::string&, uint16_t&, uint16_t&, uint16_t&);
+    std::string start_from_root(const std::string&);
+    uint8_t* do_forward_query(uint8_t *, size_t&, const std::string&);
     struct sockaddr_in servaddr;
     socklen_t servlen;
     int sockfd;
