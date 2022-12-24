@@ -190,18 +190,19 @@ uint8_t *dns::start_query(uint8_t *recvline, const string &name, const uint16_t 
     string additional_info;
     // use query name to find answer
     node = zones.find(name);
-    if(node != zones.end()){
+    if (node != zones.end())
+    {
         walk_ptr = node->second.get_answer(walk_ptr, qtype, qclass, ancount, additional_info);
     }
-
     // authority
     node = zones.find(root_zone);
     // no authority reply on Type NS query
     if (qtype != TypeID::TYPE_NS)
     {
         string found_name = name;
-        if(!additional_info.empty()){
-            found_name = additional_info.substr(additional_info.find(':')+2);
+        if (!additional_info.empty())
+        {
+            found_name = additional_info.substr(additional_info.find(':') + 2);
         }
         if (found_name == root_zone)
         {
@@ -213,11 +214,36 @@ uint8_t *dns::start_query(uint8_t *recvline, const string &name, const uint16_t 
         }
     }
     // additional
-    if (ancount > 0 && (qtype == TypeID::TYPE_NS || qtype == TypeID::TYPE_MX))
+    if (ancount > 0 && qtype == TypeID::TYPE_NS)
     {
-        string additional_domain_name = additional_info.substr(additional_info.find(':') + 2);
-        node = zones.find(additional_domain_name); // should exist
-        walk_ptr = node->second.get_additional(walk_ptr, TypeID::TYPE_A, qclass, nscount);
+        size_t start;
+        size_t end = 0;
+        while (end != additional_info.length() && (start = additional_info.find(Prefix::TYPE_NS)) != string::npos)
+        {
+            end = additional_info.find(Prefix::TYPE_NS, start + Prefix::TYPE_NS.length());
+            end = (end == string::npos) ? additional_info.length() : end;
+            // length = (end - start_of_name)
+            string additional_domain_name = additional_info.substr(start + Prefix::TYPE_NS.length() + 2, end - (start + Prefix::TYPE_NS.length() + 2));
+            node = zones.find(additional_domain_name); // should exist
+            cout << additional_domain_name << endl;
+            walk_ptr = node->second.get_additional(walk_ptr, TypeID::TYPE_A, qclass, nscount);
+        }
+    }
+    if (ancount > 0 && qtype == TypeID::TYPE_MX)
+    {
+        size_t start;
+        size_t end = 0;
+        while (end != additional_info.length() && (start = additional_info.find(Prefix::TYPE_MX, end)) != string::npos)
+        {
+            end = additional_info.find(Prefix::TYPE_MX, start + Prefix::TYPE_MX.length());
+            end = (end == string::npos) ? additional_info.length() : end;
+            // length = (end - start_of_name)
+            string additional_domain_name = additional_info.substr(start + Prefix::TYPE_MX.length() + 2, end - (start + Prefix::TYPE_MX.length() + 2));
+            node = zones.find(additional_domain_name); // should exist
+            cout << additional_domain_name << endl;
+            walk_ptr = node->second.get_additional(walk_ptr, TypeID::TYPE_A, qclass, nscount);
+            walk_ptr = node->second.get_additional(walk_ptr, TypeID::TYPE_AAAA, qclass, nscount);
+        }
     }
     return walk_ptr;
 }
@@ -234,23 +260,21 @@ string dns::start_from_root(const string &query_name)
     return probe;
 }
 
-uint8_t* dns::do_forward_query(uint8_t *recvline, size_t &sz, const string &query_name)
+uint8_t *dns::do_forward_query(uint8_t *recvline, size_t &sz, const string &query_name)
 {
     int s = -1;
     struct sockaddr_in SAddr;
     socklen_t SLen;
-	bzero(&SAddr, sizeof(SAddr));
-	SAddr.sin_family = AF_INET;
-	SAddr.sin_port = htons(53);
+    bzero(&SAddr, sizeof(SAddr));
+    SAddr.sin_family = AF_INET;
+    SAddr.sin_port = htons(53);
     SAddr.sin_addr.s_addr = inet_addr(forward_ip.c_str());
     s = Socket(AF_INET, SOCK_DGRAM, 0);
-    struct header *hdptr = (struct header *)recvline;
-    hdptr->flags = htons(0x0180);
 
     hexdump(recvline, sz);
     SLen = sizeof(SAddr);
     sendto(s, recvline, sz, 0, (struct SA *)&SAddr, SLen);
-    sz = recvfrom(s, recvline, 512, 0, (struct SA *)&SAddr, &SLen);
+    sz = recvfrom(s, recvline, 1024, 0, (struct SA *)&SAddr, &SLen);
     hexdump(recvline, sz);
     return recvline;
 }
@@ -258,7 +282,7 @@ uint8_t* dns::do_forward_query(uint8_t *recvline, size_t &sz, const string &quer
 void dns::start()
 {
     size_t sz;
-    uint8_t recvline[512];
+    uint8_t recvline[1024];
     bzero(recvline, sizeof(recvline));
     struct sockaddr_in cliaddr;
     socklen_t clilen;
@@ -268,6 +292,7 @@ void dns::start()
         uint16_t qtype, qclass, ancount = 0, nscount = 0, arcount = 0;
         uint8_t *walk_ptr = recvline;
         parse_header(walk_ptr, query_zone, qtype, qclass);
+        cout << qtype << " " << qclass << endl;
         string root_zone = start_from_root(query_zone);
         cout << query_zone << " " << root_zone << endl;
         walk_ptr = start_query(walk_ptr, query_zone, qtype, qclass, root_zone, ancount, nscount, arcount);
@@ -303,18 +328,41 @@ uint8_t *Zone::append_rr(uint8_t *walk_ptr, const uint16_t &TYPE, const uint16_t
 
 uint8_t *Zone::get_additional(uint8_t *walk_ptr, const uint16_t &qtype, const uint16_t &_class, uint16_t &nscount)
 {
-    if (this->with_type[0])
+    if (qtype == TypeID::TYPE_A && this->with_type[0])
     {
         // add answer to recvline;
         auto it = str_type.begin();
         for (; it != str_type.end(); it++)
         {
-            if (it->Qtype == TypeID::TYPE_A)
+            if (it->Qtype == qtype)
             {
                 walk_ptr = this->append_rr(walk_ptr, qtype, _class, it->_ttl, it->_length);
                 uint32_t temp;
                 Inet_pton(AF_INET, it->info.c_str(), &temp);
                 *(uint32_t *)walk_ptr = temp; // not sure
+                walk_ptr += 4;
+                nscount++;
+            }
+        }
+    }
+    if (qtype == TypeID::TYPE_AAAA && this->with_type[1])
+    {
+        // add answer to recvline;
+        auto it = str_type.begin();
+        for (; it != str_type.end(); it++)
+        {
+            if (it->Qtype == qtype)
+            {
+                walk_ptr = this->append_rr(walk_ptr, qtype, _class, it->_ttl, it->_length);
+                uint32_t temp[4];
+                Inet_pton(AF_INET6, it->info.c_str(), &temp);
+                *(uint32_t *)walk_ptr = temp[0]; // not sure
+                walk_ptr += 4;
+                *(uint32_t *)walk_ptr = temp[1]; // not sure
+                walk_ptr += 4;
+                *(uint32_t *)walk_ptr = temp[2]; // not sure
+                walk_ptr += 4;
+                *(uint32_t *)walk_ptr = temp[3]; // not sure
                 walk_ptr += 4;
                 nscount++;
             }
@@ -381,7 +429,7 @@ uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16
                     uint32_t temp;
                     Inet_pton(AF_INET, it->info.c_str(), &temp);
                     *(uint32_t *)walk_ptr = temp; // not sure
-                    walk_ptr += 4;
+                    walk_ptr += it->_length;
                     ancount++;
                 }
             }
@@ -398,10 +446,16 @@ uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16
                 if (it->Qtype == TypeID::TYPE_AAAA)
                 {
                     walk_ptr = this->append_rr(walk_ptr, qtype, _class, it->_ttl, it->_length);
-                    uint32_t temp;
+                    uint32_t temp[4];
                     Inet_pton(AF_INET6, it->info.c_str(), &temp);
-                    *(uint32_t *)walk_ptr = temp; // not sure
-                    walk_ptr += it->_length;
+                    *(uint32_t *)walk_ptr = temp[0]; // not sure
+                    walk_ptr += 4;
+                    *(uint32_t *)walk_ptr = temp[1]; // not sure
+                    walk_ptr += 4;
+                    *(uint32_t *)walk_ptr = temp[2]; // not sure
+                    walk_ptr += 4;
+                    *(uint32_t *)walk_ptr = temp[3]; // not sure
+                    walk_ptr += 4;
                     ancount++;
                 }
             }
