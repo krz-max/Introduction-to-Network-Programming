@@ -1,14 +1,14 @@
 # NetProgIntro
 
-## lab01
+## lab01 : docker & simple packet analsys
 
-## lab02
+## lab02 : binary file format handling
 
-## lab03
+## lab03 : TCP clients - simple & constant bitrate
 
-## lab04
+## lab04 : nkat TCP server
 
-## lab05
+## lab05 : simple TCP chat server
 
 
 lab06 requires the `netem` module in your Linux environment.
@@ -21,7 +21,7 @@ download the bzImage [here](https://inp111.zoolab.org/wsl/kernel.bzImage)
   - If you are unsure, type the command `echo %UserProfile%` in a DOS command line prompt, or simply type `%UserProfile%` in the location bar of your File Explorer. 
   - A sample `.wslconfig` file is available here. You can use it directly if you don’t have one.
 4. Restart your WSL2 system and docker, or reboot your computer. You can run the command `uname -a` in your WSL or Linux container to verify if you are running the new kernel. The reported Linux kernel version should be `5.15.68.1-microsoft-standard-WSL2` built on Oct 6, 2022.
-## lab06
+## lab06 : traffic shaping & TCP performance
 
 
 
@@ -34,18 +34,17 @@ virtualenv -p python3 ~/pwntools
 . ~/pwntools/bin/activate
 pip3 install --upgrade pwntools
 ```
-## lab07
+## lab07 : Reentrant CTF challenges
 
+## lab08 : Robust UDP challenge
 
+## lab09 : UNIX Domain Sudoku
 
-## lab08
+## lab10 : Broadcast XDP File Transfer & Raw Socket
 
-## lab09
+## HW1 : Real-world TCP chat server - IRC protocol with weechat client
 
-## lab10
-
-
-
+## HW2 : Your own dns server - RFC 1035
 
 # References
 The entry for the course page is [here](https://people.cs.nctu.edu.tw/~chuang/courses/netprog/)
