@@ -43,8 +43,11 @@ pip3 install --upgrade pwntools
 ## lab10 : Broadcast XDP File Transfer & Raw Socket
 
 ## HW1 : Real-world TCP chat server - IRC protocol with weechat client
+[RFC 1459](https://www.rfc-editor.org/rfc/rfc1459)
 
 ## HW2 : Your own dns server - RFC 1035
+[RFC 1035](https://www.rfc-editor.org/rfc/rfc1035)
 
 # References
 The entry for the course page is [here](https://people.cs.nctu.edu.tw/~chuang/courses/netprog/)
+You may need NYCU ip to have access to the website
