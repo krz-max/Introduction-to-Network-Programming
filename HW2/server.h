@@ -164,7 +164,7 @@ struct Zone
     void print_info();          // only print RR records in this node and whether it has subzones
     void update_info(int, uint16_t, uint16_t, std::string);
     uint8_t* append_rr(uint8_t*, const uint16_t&, const uint16_t&, const uint32_t&, const uint16_t&);
-    uint8_t* get_answer(uint8_t*, const uint16_t&, const uint16_t& , uint16_t&, std::string&);
+    uint8_t* get_answer(uint8_t*, const uint16_t&, const uint16_t& , uint16_t&, std::vector<std::string>&);
     uint8_t* get_additional(uint8_t*, const uint16_t&, const uint16_t& , uint16_t&);
     uint8_t* get_authority(uint8_t*, const uint16_t&, const uint16_t& , uint16_t&);
     std::string get_NS_name();

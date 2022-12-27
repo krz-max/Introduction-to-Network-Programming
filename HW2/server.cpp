@@ -72,6 +72,7 @@ dns::dns(const char *config_file, in_port_t port)
                 zones[root].subzones.push_back(cur_name);
                 has_subzone = true;
             }
+            cout << cur_name << " " << TTL << " " << CLASS << " " << TYPE << " " << temp << endl;
             zones[cur_name].update_info(TTL, CLASS, TYPE, temp);
         }
         zones[root].has_subzone = has_subzone;
@@ -187,7 +188,7 @@ uint8_t *dns::start_query(uint8_t *recvline, const string &name, const uint16_t 
     // Answer Section
     uint8_t *walk_ptr = (recvline + sizeof(header) + (name.length() + 1) + 2 + 2); // header + <domain-name> + QTYPE + QCLASS
     // just make sure (start_of_ans - recvline) < 512
-    string additional_info;
+    vector<string> additional_info;
     // use query name to find answer
     node = zones.find(name);
     if (node != zones.end())
@@ -196,51 +197,39 @@ uint8_t *dns::start_query(uint8_t *recvline, const string &name, const uint16_t 
     }
     // authority
     node = zones.find(root_zone);
-    // no authority reply on Type NS query
-    if (qtype != TypeID::TYPE_NS)
+    if (ancount == 0)
     {
-        string found_name = name;
-        if (!additional_info.empty())
+        walk_ptr = node->second.get_authority(walk_ptr, TypeID::TYPE_SOA, qclass, arcount);
+    }
+    else
+    {
+        if (qtype != TypeID::TYPE_NS)
+        // no authority reply on Type NS query
         {
-            found_name = additional_info.substr(additional_info.find(':') + 2);
-        }
-        if (found_name == root_zone)
-        {
-            walk_ptr = node->second.get_authority(walk_ptr, TypeID::TYPE_SOA, qclass, arcount);
-        }
-        else
-        {
-            walk_ptr = node->second.get_authority(walk_ptr, TypeID::TYPE_NS, qclass, arcount);
+            for (auto found_name : additional_info)
+            {
+                node = zones.find(found_name);
+                walk_ptr = node->second.get_authority(walk_ptr, TypeID::TYPE_NS, qclass, arcount);
+            }
         }
     }
     // additional
     if (ancount > 0 && qtype == TypeID::TYPE_NS)
     {
-        size_t start;
-        size_t end = 0;
-        while (end != additional_info.length() && (start = additional_info.find(Prefix::TYPE_NS)) != string::npos)
+        for (auto additional_domain_name : additional_info)
         {
-            end = additional_info.find(Prefix::TYPE_NS, start + Prefix::TYPE_NS.length());
-            end = (end == string::npos) ? additional_info.length() : end;
-            // length = (end - start_of_name)
-            string additional_domain_name = additional_info.substr(start + Prefix::TYPE_NS.length() + 2, end - (start + Prefix::TYPE_NS.length() + 2));
             node = zones.find(additional_domain_name); // should exist
             cout << additional_domain_name << endl;
+            if(node == zones.end()) cout << "here" << endl;
             walk_ptr = node->second.get_additional(walk_ptr, TypeID::TYPE_A, qclass, nscount);
+            walk_ptr = node->second.get_additional(walk_ptr, TypeID::TYPE_AAAA, qclass, nscount);
         }
     }
     if (ancount > 0 && qtype == TypeID::TYPE_MX)
     {
-        size_t start;
-        size_t end = 0;
-        while (end != additional_info.length() && (start = additional_info.find(Prefix::TYPE_MX, end)) != string::npos)
+        for (auto additional_domain_name : additional_info)
         {
-            end = additional_info.find(Prefix::TYPE_MX, start + Prefix::TYPE_MX.length());
-            end = (end == string::npos) ? additional_info.length() : end;
-            // length = (end - start_of_name)
-            string additional_domain_name = additional_info.substr(start + Prefix::TYPE_MX.length() + 2, end - (start + Prefix::TYPE_MX.length() + 2));
             node = zones.find(additional_domain_name); // should exist
-            cout << additional_domain_name << endl;
             walk_ptr = node->second.get_additional(walk_ptr, TypeID::TYPE_A, qclass, nscount);
             walk_ptr = node->second.get_additional(walk_ptr, TypeID::TYPE_AAAA, qclass, nscount);
         }
@@ -292,9 +281,7 @@ void dns::start()
         uint16_t qtype, qclass, ancount = 0, nscount = 0, arcount = 0;
         uint8_t *walk_ptr = recvline;
         parse_header(walk_ptr, query_zone, qtype, qclass);
-        cout << qtype << " " << qclass << endl;
         string root_zone = start_from_root(query_zone);
-        cout << query_zone << " " << root_zone << endl;
         walk_ptr = start_query(walk_ptr, query_zone, qtype, qclass, root_zone, ancount, nscount, arcount);
         if (walk_ptr == recvline)
         {
@@ -413,7 +400,7 @@ uint8_t *Zone::get_authority(uint8_t *walk_ptr, const uint16_t &qtype, const uin
     return walk_ptr;
 }
 
-uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16_t &_class, uint16_t &ancount, string &additional_info)
+uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16_t &_class, uint16_t &ancount, vector<string> &additional_info)
 {
     if (qtype == TypeID::TYPE_A)
     {
@@ -431,6 +418,21 @@ uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16
                     *(uint32_t *)walk_ptr = temp; // not sure
                     walk_ptr += it->_length;
                     ancount++;
+                }
+            }
+            if (ancount > 0)
+            {
+                // add answer to recvline;
+                auto it = str_type.begin();
+                for (; it != str_type.end(); it++)
+                {
+                    if (it->Qtype == TypeID::TYPE_NS)
+                    {
+                        walk_ptr = this->append_rr(walk_ptr, qtype, _class, it->_ttl, it->_length);
+                        walk_ptr = copy_string(walk_ptr, it->info, true);
+                        additional_info.push_back(it->info);
+                        ancount++;
+                    }
                 }
             }
         }
@@ -459,6 +461,21 @@ uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16
                     ancount++;
                 }
             }
+            if (ancount > 0)
+            {
+                // add answer to recvline;
+                auto it = str_type.begin();
+                for (; it != str_type.end(); it++)
+                {
+                    if (it->Qtype == TypeID::TYPE_NS)
+                    {
+                        walk_ptr = this->append_rr(walk_ptr, qtype, _class, it->_ttl, it->_length);
+                        walk_ptr = copy_string(walk_ptr, it->info, true);
+                        additional_info.push_back(it->info);
+                        ancount++;
+                    }
+                }
+            }
         }
     }
     else if (qtype == TypeID::TYPE_NS)
@@ -473,7 +490,7 @@ uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16
                 {
                     walk_ptr = this->append_rr(walk_ptr, qtype, _class, it->_ttl, it->_length);
                     walk_ptr = copy_string(walk_ptr, it->info, true);
-                    additional_info += Prefix::TYPE_NS + ": " + it->info;
+                    additional_info.push_back(it->info);
                     ancount++;
                 }
             }
@@ -495,6 +512,21 @@ uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16
                     ancount++;
                 }
             }
+            if (ancount > 0)
+            {
+                // add answer to recvline;
+                auto it = str_type.begin();
+                for (; it != str_type.end(); it++)
+                {
+                    if (it->Qtype == TypeID::TYPE_NS)
+                    {
+                        walk_ptr = this->append_rr(walk_ptr, qtype, _class, it->_ttl, it->_length);
+                        walk_ptr = copy_string(walk_ptr, it->info, true);
+                        additional_info.push_back(it->info);
+                        ancount++;
+                    }
+                }
+            }
         }
     }
     else if (qtype == TypeID::TYPE_CNAME)
@@ -511,6 +543,21 @@ uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16
                 walk_ptr = copy_string(walk_ptr, (*it).c_str(), true);
                 ancount++;
             }
+            if (ancount > 0)
+            {
+                // add answer to recvline;
+                auto it = str_type.begin();
+                for (; it != str_type.end(); it++)
+                {
+                    if (it->Qtype == TypeID::TYPE_NS)
+                    {
+                        walk_ptr = this->append_rr(walk_ptr, qtype, _class, it->_ttl, it->_length);
+                        walk_ptr = copy_string(walk_ptr, it->info, true);
+                        additional_info.push_back(it->info);
+                        ancount++;
+                    }
+                }
+            }
         }
     }
     else if (qtype == TypeID::TYPE_MX)
@@ -525,7 +572,7 @@ uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16
                 *(uint16_t *)walk_ptr = htons(it->preference);
                 walk_ptr += 2;
                 walk_ptr = copy_string(walk_ptr, it->exchange.c_str(), true);
-                additional_info += Prefix::TYPE_MX + ": " + it->exchange;
+                additional_info.push_back(it->exchange);
                 ancount++;
             }
         }
