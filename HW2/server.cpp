@@ -72,7 +72,6 @@ dns::dns(const char *config_file, in_port_t port)
                 zones[root].subzones.push_back(cur_name);
                 has_subzone = true;
             }
-            cout << cur_name << " " << TTL << " " << CLASS << " " << TYPE << " " << temp << endl;
             zones[cur_name].update_info(TTL, CLASS, TYPE, temp);
         }
         zones[root].has_subzone = has_subzone;
@@ -200,32 +199,27 @@ uint8_t *dns::start_query(uint8_t *recvline, const string &name, const uint16_t 
     if (ancount == 0)
     {
         walk_ptr = node->second.get_authority(walk_ptr, TypeID::TYPE_SOA, qclass, arcount);
+        return walk_ptr;
     }
-    else
+    if (qtype != TypeID::TYPE_NS)
     {
-        if (qtype != TypeID::TYPE_NS)
-        // no authority reply on Type NS query
-        {
-            for (auto found_name : additional_info)
-            {
-                node = zones.find(found_name);
-                walk_ptr = node->second.get_authority(walk_ptr, TypeID::TYPE_NS, qclass, arcount);
-            }
-        }
+        walk_ptr = node->second.get_authority(walk_ptr, TypeID::TYPE_NS, qclass, arcount);
     }
+
     // additional
-    if (ancount > 0 && qtype == TypeID::TYPE_NS)
+    if (qtype == TypeID::TYPE_NS)
     {
         for (auto additional_domain_name : additional_info)
         {
             node = zones.find(additional_domain_name); // should exist
             cout << additional_domain_name << endl;
-            if(node == zones.end()) cout << "here" << endl;
+            if (node == zones.end())
+                cout << "Node Not Found!!" << endl;
             walk_ptr = node->second.get_additional(walk_ptr, TypeID::TYPE_A, qclass, nscount);
             walk_ptr = node->second.get_additional(walk_ptr, TypeID::TYPE_AAAA, qclass, nscount);
         }
     }
-    if (ancount > 0 && qtype == TypeID::TYPE_MX)
+    if (qtype == TypeID::TYPE_MX)
     {
         for (auto additional_domain_name : additional_info)
         {
@@ -382,8 +376,10 @@ uint8_t *Zone::get_authority(uint8_t *walk_ptr, const uint16_t &qtype, const uin
     }
     else if (qtype == TypeID::TYPE_NS)
     {
+        cout << "here" << endl;
         if (this->with_type[2])
         {
+            cout << "here" << endl;
             // add answer to recvline;
             auto it = str_type.begin();
             for (; it != str_type.end(); it++)
@@ -428,10 +424,7 @@ uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16
                 {
                     if (it->Qtype == TypeID::TYPE_NS)
                     {
-                        walk_ptr = this->append_rr(walk_ptr, qtype, _class, it->_ttl, it->_length);
-                        walk_ptr = copy_string(walk_ptr, it->info, true);
                         additional_info.push_back(it->info);
-                        ancount++;
                     }
                 }
             }
@@ -469,10 +462,7 @@ uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16
                 {
                     if (it->Qtype == TypeID::TYPE_NS)
                     {
-                        walk_ptr = this->append_rr(walk_ptr, qtype, _class, it->_ttl, it->_length);
-                        walk_ptr = copy_string(walk_ptr, it->info, true);
                         additional_info.push_back(it->info);
-                        ancount++;
                     }
                 }
             }
@@ -520,10 +510,7 @@ uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16
                 {
                     if (it->Qtype == TypeID::TYPE_NS)
                     {
-                        walk_ptr = this->append_rr(walk_ptr, qtype, _class, it->_ttl, it->_length);
-                        walk_ptr = copy_string(walk_ptr, it->info, true);
                         additional_info.push_back(it->info);
-                        ancount++;
                     }
                 }
             }
@@ -551,10 +538,7 @@ uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16
                 {
                     if (it->Qtype == TypeID::TYPE_NS)
                     {
-                        walk_ptr = this->append_rr(walk_ptr, qtype, _class, it->_ttl, it->_length);
-                        walk_ptr = copy_string(walk_ptr, it->info, true);
                         additional_info.push_back(it->info);
-                        ancount++;
                     }
                 }
             }
