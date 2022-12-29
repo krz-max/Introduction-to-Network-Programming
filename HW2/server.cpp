@@ -567,6 +567,18 @@ uint8_t *Zone::get_answer(uint8_t *walk_ptr, const uint16_t &qtype, const uint16
         {
             ancount++;
             walk_ptr = this->append_rr(walk_ptr, qtype, _class, this->_SOA._ttl, this->_SOA._length);
+            walk_ptr = copy_string(walk_ptr, this->_SOA.m_name, true);
+            walk_ptr = copy_string(walk_ptr, this->_SOA.r_name, true);
+            *(uint32_t *)walk_ptr = htonl(this->_SOA.serial);
+            walk_ptr += 4;
+            *(int *)walk_ptr = htonl(this->_SOA.refresh);
+            walk_ptr += 4;
+            *(int *)walk_ptr = htonl(this->_SOA.retry);
+            walk_ptr += 4;
+            *(int *)walk_ptr = htonl(this->_SOA.expire);
+            walk_ptr += 4;
+            *(uint32_t *)walk_ptr = htonl(this->_SOA.minimum);
+            walk_ptr += 4;
         }
     }
     else
