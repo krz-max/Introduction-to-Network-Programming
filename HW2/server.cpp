@@ -184,10 +184,45 @@ uint8_t *dns::start_query(uint8_t *recvline, const string &name, const uint16_t 
         // should send "name" not "root_zone" because root_zone is not necessarily equal to query name
         return recvline;
     }
-    // Answer Section
-    uint8_t *walk_ptr = (recvline + sizeof(header) + (name.length() + 1) + 2 + 2); // header + <domain-name> + QTYPE + QCLASS
-    // just make sure (start_of_ans - recvline) < 512
     vector<string> additional_info;
+    uint8_t *walk_ptr = (recvline + sizeof(header) + (name.length() + 1) + 2 + 2); // header + <domain-name> + QTYPE + QCLASS
+
+    // nip.io service
+    int dot = 4;
+    size_t idx = 0;
+    while (dot > 0 && idx < name.length())
+    {
+        if (name[idx++] == '.')
+            dot--;
+    }
+    if (dot == 0)
+    {
+        string prefix = name.substr(0, --idx);
+        uint32_t buf;
+        // this query is in my domain, so just reply the answer
+        // the prefix fits the IPv4 format
+        cout << prefix << endl;
+        if (Inet_pton(AF_INET, prefix.c_str(), &buf) == 1)
+        {
+            cout << "here" << endl;
+            ancount++;
+            walk_ptr = copy_string(walk_ptr, name, true);
+            *(uint16_t *)walk_ptr = htons(TypeID::TYPE_A);
+            walk_ptr += 2;
+            *(uint16_t *)walk_ptr = htons(qclass);
+            walk_ptr += 2;
+            *(uint32_t *)walk_ptr = htonl(1);
+            walk_ptr += 4;
+            *(uint16_t *)walk_ptr = htons(4);
+            walk_ptr += 2;
+            *(uint32_t *)walk_ptr = buf;
+            walk_ptr += 4;
+            return walk_ptr;
+        }
+    }
+
+    // Answer Section
+    // just make sure (start_of_ans - recvline) < 512
     // use query name to find answer
     node = zones.find(name);
     if (node != zones.end())
@@ -275,10 +310,14 @@ void dns::start()
         uint16_t qtype, qclass, ancount = 0, nscount = 0, arcount = 0;
         uint8_t *walk_ptr = recvline;
         parse_header(walk_ptr, query_zone, qtype, qclass);
+
+        cout << query_zone << " " << qtype << " " << qclass << endl;
+        hexdump(recvline, sz);
         string root_zone = start_from_root(query_zone);
         walk_ptr = start_query(walk_ptr, query_zone, qtype, qclass, root_zone, ancount, nscount, arcount);
         if (walk_ptr == recvline)
         {
+            cout << "here" << endl;
             walk_ptr = do_forward_query(recvline, sz, query_zone);
             sendto(sockfd, walk_ptr, sz, 0, (struct SA *)&cliaddr, clilen);
             bzero(recvline, sizeof(recvline));
