@@ -1,4 +1,5 @@
-# NetProgIntro
+# NYCU Introduction to Network Programming 111-1
+* Prof. 黃俊穎
 
 ## lab01 : docker & simple packet analsys
 
